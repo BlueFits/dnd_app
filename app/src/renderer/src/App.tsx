@@ -9,7 +9,9 @@ function App(): React.JSX.Element {
   return (
     <>
       <div className="counter">
-        <h2>Counter: {useSelector((state: { counter: { value: number } }) => state.counter.value)}</h2>
+        <h2 className="text-3xl font-bold underline text-red-500 text-[32px]">
+          Counter: {useSelector((state: { counter: { value: number } }) => state.counter.value)}
+        </h2>
         <div className="counter-actions">
           <button onClick={() => dispatch(increment())}>Increment</button>
           <button onClick={() => dispatch(decrement())}>Decrement</button>
