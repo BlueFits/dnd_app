@@ -11,7 +11,7 @@ export class OpenaiService {
     });
   }
 
-  async chat(prompt: string) {
+  chat(prompt: string) {
     // const response = await this.openai.responses.create({
     //     model: 'gpt-4.1',
     //     input: prompt,

@@ -4,6 +4,6 @@ import { OpenaiService } from './openai.service';
 
 @Module({
   controllers: [OpenaiController],
-  providers: [OpenaiService]
+  providers: [OpenaiService],
 })
 export class OpenaiModule {}

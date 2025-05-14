@@ -5,13 +5,8 @@ import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    OpenaiModule,
-  ],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), OpenaiModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
