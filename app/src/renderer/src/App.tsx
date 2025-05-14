@@ -1,11 +1,20 @@
 import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
+import { useDispatch, useSelector } from 'react-redux'
+import { increment, decrement } from './store/counterSlice'
 
 function App(): React.JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
+  const dispatch = useDispatch()
   return (
     <>
+      <div className="counter">
+        <h2>Counter: {useSelector((state: { counter: { value: number } }) => state.counter.value)}</h2>
+        <div className="counter-actions">
+          <button onClick={() => dispatch(increment())}>Increment</button>
+          <button onClick={() => dispatch(decrement())}>Decrement</button>
+        </div>
+      </div>
       <img alt="logo" className="logo" src={electronLogo} />
       <div className="creator">Powered by electron-vite</div>
       <div className="text">
