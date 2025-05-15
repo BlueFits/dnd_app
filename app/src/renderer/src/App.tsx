@@ -2,13 +2,30 @@ import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
 import { increment, decrement } from './store/counterSlice'
 import { useAppDispatch, useAppSelector } from './store/hooks'
+import { useEffect, useState } from 'react'
 
 function App(): React.JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const dispatch = useAppDispatch()
+  const [data, setData] = useState<unknown>(null)
+
+  useEffect(() => {
+    const loadData = async (): Promise<void> => {
+      try {
+        const jsonData = await window.api.readJsonFile('sessions/session-001.json')
+        setData(jsonData)
+      } catch (error) {
+        console.error('Failed to load JSON:', error)
+      }
+    }
+
+    loadData()
+  }, [])
+
   return (
     <>
       <div className="counter">
+        <div>{data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading....</p>}</div>
         <h2 className="text-3xl font-bold underline text-red-500 text-[32px]">
           Counter: {useAppSelector((state) => state.counter.value)}
         </h2>

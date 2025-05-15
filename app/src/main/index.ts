@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { readFile } from 'fs/promises'
 
 function createWindow(): void {
   // Create the browser window.
@@ -16,6 +17,8 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -41,6 +44,28 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+
+  // Handle JSON file reading
+  ipcMain.handle('read-json-file', async (_, filePath: string) => {
+    try {
+      // If the path is relative, resolve it from the app's root directory
+      const resolvedPath =
+        filePath.startsWith('/') || filePath.match(/^[A-Za-z]:/)
+          ? filePath
+          : join(app.getAppPath(), filePath)
+
+      const data = await readFile(resolvedPath, 'utf-8')
+      return JSON.parse(data)
+    } catch (error) {
+      console.error('Error reading JSON file:', error)
+      throw error
+    }
+  })
+
+  // Get user data directory path
+  ipcMain.handle('get-user-data-path', () => {
+    return app.getPath('userData')
+  })
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
