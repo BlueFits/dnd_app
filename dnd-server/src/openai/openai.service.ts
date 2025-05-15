@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
+import { ResponseInput } from 'openai/resources/responses/responses';
 
 @Injectable()
 export class OpenaiService {
@@ -11,11 +12,11 @@ export class OpenaiService {
     });
   }
 
-  chat(prompt: string) {
-    // const response = await this.openai.responses.create({
-    //     model: 'gpt-4.1',
-    //     input: prompt,
-    // });
-    return prompt;
+  async chat(prompt: ResponseInput) {
+    const response = await this.openai.responses.create({
+      model: 'gpt-4.1',
+      input: prompt,
+    });
+    return response;
   }
 }
