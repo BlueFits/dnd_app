@@ -8,11 +8,12 @@ function App(): React.JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const dispatch = useAppDispatch()
   const [data, setData] = useState<unknown>(null)
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
       try {
-        const jsonData = await window.api.readJsonFile('sessions/session-001.json')
+        const jsonData = await window.api.readJsonFile('sessions/sessions-001.json')
         setData(jsonData)
       } catch (error) {
         console.error('Failed to load JSON:', error)
@@ -22,10 +23,42 @@ function App(): React.JSX.Element {
     loadData()
   }, [])
 
+  const handleAddMessage = async (): Promise<void> => {
+    if (!message.trim()) return
+
+    try {
+      const newMessage = {
+        role: 'user',
+        content: message
+      }
+
+      const updatedData = await window.api.appendToJsonFile('sessions/session-001.json', newMessage)
+      setData(updatedData)
+      setMessage('') // Clear the input after successful append
+    } catch (error) {
+      console.error('Failed to append message:', error)
+    }
+  }
+
   return (
     <>
       <div className="counter">
-        <div>{data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading....</p>}</div>
+        <div>{data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading...</p>}</div>
+        <div className="message-input">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Enter your message"
+            className="border p-2 mr-2"
+          />
+          <button
+            onClick={handleAddMessage}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Add Message
+          </button>
+        </div>
         <h2 className="text-3xl font-bold underline text-red-500 text-[32px]">
           Counter: {useAppSelector((state) => state.counter.value)}
         </h2>

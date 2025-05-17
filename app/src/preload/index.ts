@@ -4,8 +4,10 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   readJsonFile: (filePath: string) => ipcRenderer.invoke('read-json-file', filePath),
+  appendToJsonFile: (filePath: string, newData: Record<string, unknown>) =>
+    ipcRenderer.invoke('append-to-json-file', filePath, newData),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path')
-}
+} as const
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
