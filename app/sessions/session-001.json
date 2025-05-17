@@ -18,5 +18,29 @@
   {
     "role": "assistant",
     "content": "Your body fades from sight as silence settles over the crypt. Whatever watches... no longer sees you."
+  },
+  {
+    "role": "user",
+    "content": "i dont know"
+  },
+  {
+    "role": "assistant",
+    "content": "You stand there, shrouded in both darkness and uncertainty. Ancient crypts can be full of treasure or terror; often, both. So, where will you go from here? The choices lie before you, echoing patiently within the crypt's eerie silence."
+  },
+  {
+    "role": "user",
+    "content": "what is my name?"
+  },
+  {
+    "role": "assistant",
+    "content": "That, my friend, is a tale only you can tell. The echo of your deeds, the resonance of your choices, those define you in this world. So, who are you, really? Are you the feared shadow, a silent predator? Or are you just a lost soul wandering inside the crypt's eternal darkness?"
+  },
+  {
+    "role": "user",
+    "content": "can you model this after name of the wind"
+  },
+  {
+    "role": "assistant",
+    "content": "In a place as tangible as darkness itself, you are like Kvothe from \"The Name of the Wind,\" known with many names. You are the warrior who treads the unseen paths, the shadow whispering unknown secrets, the bard who strums his pain into melodies. You're the deft hand able to ignite a shroud of mystery... you're the song heard in every echo of the crypt. You are the E'lir. \n\nYet in this moment, what truly matters is not who you were, but who you choose to be right now. Do you wield your sword for justice or vengeance? Or does the mere thrill of adventure call you deeper into the crypt? Your name is a question that the crypt patiently awaits to answer. So tell me: who are you, really?"
   }
 ]

@@ -1,95 +1,71 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
-import { increment, decrement } from './store/counterSlice'
-import { useAppDispatch, useAppSelector } from './store/hooks'
 import { useEffect, useState } from 'react'
+import { useAppDispatch, useAppSelector } from './store/hooks'
+import { sendMessage, loadMessages } from './store/chatSlice'
 
 function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const dispatch = useAppDispatch()
-  const [data, setData] = useState<unknown>(null)
-  const [message, setMessage] = useState('')
+  const { messages, status } = useAppSelector((state) => state.chat)
+  const [inputMessage, setInputMessage] = useState('')
 
   useEffect(() => {
-    const loadData = async (): Promise<void> => {
-      try {
-        const jsonData = await window.api.readJsonFile('sessions/sessions-001.json')
-        setData(jsonData)
-      } catch (error) {
-        console.error('Failed to load JSON:', error)
-      }
-    }
+    dispatch(loadMessages())
+  }, [dispatch])
 
-    loadData()
-  }, [])
-
-  const handleAddMessage = async (): Promise<void> => {
-    if (!message.trim()) return
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault()
+    if (!inputMessage.trim() || status === 'loading') return
 
     try {
-      const newMessage = {
-        role: 'user',
-        content: message
-      }
-
-      const updatedData = await window.api.appendToJsonFile('sessions/session-001.json', newMessage)
-      setData(updatedData)
-      setMessage('') // Clear the input after successful append
+      await dispatch(sendMessage(inputMessage))
+      setInputMessage('')
     } catch (error) {
-      console.error('Failed to append message:', error)
+      console.error('Failed to send message:', error)
     }
   }
 
   return (
-    <>
-      <div className="counter">
-        <div>{data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading...</p>}</div>
-        <div className="message-input">
+    <div className="flex flex-col h-screen bg-gray-100">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[70%] rounded-lg p-3 ${
+                message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'
+              }`}
+            >
+              {message.content}
+            </div>
+          </div>
+        ))}
+        {status === 'loading' && (
+          <div className="flex justify-start">
+            <div className="bg-white text-gray-800 rounded-lg p-3">Thinking...</div>
+          </div>
+        )}
+      </div>
+      <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
+        <div className="flex space-x-4">
           <input
             type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Enter your message"
-            className="border p-2 mr-2"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Type your message..."
+            className="flex-1 p-2 border rounded-lg focus:outline-none focus:border-blue-500 text-black"
+            disabled={status === 'loading'}
           />
           <button
-            onClick={handleAddMessage}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            type="submit"
+            disabled={status === 'loading' || !inputMessage.trim()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Message
+            Send
           </button>
         </div>
-        <h2 className="text-3xl font-bold underline text-red-500 text-[32px]">
-          Counter: {useAppSelector((state) => state.counter.value)}
-        </h2>
-        <div className="counter-actions">
-          <button onClick={() => dispatch(increment())}>Increment</button>
-          <button onClick={() => dispatch(decrement())}>Decrement</button>
-        </div>
-      </div>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+      </form>
+    </div>
   )
 }
 
