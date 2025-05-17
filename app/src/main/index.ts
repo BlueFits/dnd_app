@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { readFile, writeFile } from 'fs/promises'
+import { registerIpcHandlers } from './ipc'
 
 function createWindow(): void {
   // Create the browser window.
@@ -45,67 +45,6 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
-  // Handle JSON file reading
-  ipcMain.handle('read-json-file', async (_, filePath: string) => {
-    try {
-      // If the path is relative, resolve it from the app's root directory
-      const resolvedPath =
-        filePath.startsWith('/') || filePath.match(/^[A-Za-z]:/)
-          ? filePath
-          : join(app.getAppPath(), filePath)
-
-      const data = await readFile(resolvedPath, 'utf-8')
-      return JSON.parse(data)
-    } catch (error) {
-      console.error('Error reading JSON file:', error)
-      throw error
-    }
-  })
-
-  // Handle appending to JSON file
-  ipcMain.handle(
-    'append-to-json-file',
-    async (_, filePath: string, newData: Record<string, unknown>) => {
-      try {
-        // If the path is relative, resolve it from the app's root directory
-        const resolvedPath =
-          filePath.startsWith('/') || filePath.match(/^[A-Za-z]:/)
-            ? filePath
-            : join(app.getAppPath(), filePath)
-
-        // Read existing data
-        let existingData: Record<string, unknown>[] = []
-        try {
-          const data = await readFile(resolvedPath, 'utf-8')
-          existingData = JSON.parse(data)
-        } catch {
-          // If file doesn't exist or is empty, start with empty array
-          console.log('No existing file or empty file, starting fresh')
-        }
-
-        // Ensure existingData is an array
-        if (!Array.isArray(existingData)) {
-          existingData = []
-        }
-
-        // Append new data
-        existingData.push(newData)
-
-        // Write back to file
-        await writeFile(resolvedPath, JSON.stringify(existingData, null, 2), 'utf-8')
-        return existingData
-      } catch (error) {
-        console.error('Error appending to JSON file:', error)
-        throw error
-      }
-    }
-  )
-
-  // Get user data directory path
-  ipcMain.handle('get-user-data-path', () => {
-    return app.getPath('userData')
-  })
-
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -133,6 +72,9 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+// Register all IPC handlers
+registerIpcHandlers()
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
