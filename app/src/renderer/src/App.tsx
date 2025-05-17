@@ -26,20 +26,22 @@ function App(): React.JSX.Element {
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
+        {messages
+          .filter((message) => message.role !== 'system')
+          .map((message, index) => (
             <div
-              className={`max-w-[70%] rounded-lg p-3 ${
-                message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'
-              }`}
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {message.content}
+              <div
+                className={`max-w-[70%] rounded-lg p-3 ${
+                  message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'
+                }`}
+              >
+                {message.content}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         {streamingContent && (
           <div className="flex justify-start">
             <div className="max-w-[70%] bg-white text-gray-800 rounded-lg p-3">
