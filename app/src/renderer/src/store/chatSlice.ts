@@ -12,6 +12,8 @@ export interface ChatState {
   streamingContent: string
 }
 
+const SESSION_FILE = 'session-001.json'
+
 const initialState: ChatState = {
   messages: [],
   status: 'idle',
@@ -58,12 +60,12 @@ export const sendMessage = createAsyncThunk(
         }
       }
 
-      // Save to JSON file
-      await window.api.appendToJsonFile('sessions/session-001.json', {
+      // Save to JSON file in user data directory
+      await window.api.appendToJsonFile(SESSION_FILE, {
         role: 'user',
         content: message
       })
-      await window.api.appendToJsonFile('sessions/session-001.json', {
+      await window.api.appendToJsonFile(SESSION_FILE, {
         role: 'assistant',
         content: assistantMessage
       })
@@ -82,7 +84,7 @@ export const sendMessage = createAsyncThunk(
 
 export const loadMessages = createAsyncThunk('chat/loadMessages', async () => {
   try {
-    const messages = await window.api.readJsonFile('sessions/session-001.json')
+    const messages = await window.api.readJsonFile(SESSION_FILE)
     return messages as Message[]
   } catch (error) {
     throw new Error(

@@ -20,7 +20,7 @@ function createWindow(): void {
 
   // Only open DevTools in development mode
   if (is.dev) {
-    mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
   }
 
   mainWindow.on('ready-to-show', () => {
