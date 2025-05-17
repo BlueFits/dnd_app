@@ -3,9 +3,18 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), OpenaiModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/dnd-app',
+    ),
+    OpenaiModule,
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
