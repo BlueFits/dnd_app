@@ -9,22 +9,24 @@ export interface ChatState {
   messages: Message[]
   status: 'idle' | 'loading' | 'failed'
   error: string | null
+  streamingContent: string
 }
 
 const initialState: ChatState = {
   messages: [],
   status: 'idle',
-  error: null
+  error: null,
+  streamingContent: ''
 }
 
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async (message: string, { getState }) => {
+  async (message: string, { getState, dispatch }) => {
     const state = getState() as { chat: ChatState }
     const messages = [...state.chat.messages, { role: 'user', content: message }]
 
     try {
-      const response = await fetch('http://localhost:3000/openai/chat', {
+      const response = await fetch('http://localhost:3000/llm/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -51,6 +53,7 @@ export const sendMessage = createAsyncThunk(
           if (line.startsWith('data: ')) {
             const data = JSON.parse(line.slice(6))
             assistantMessage += data.content
+            dispatch(chatSlice.actions.updateStreamingContent(assistantMessage))
           }
         }
       }
@@ -91,20 +94,30 @@ export const loadMessages = createAsyncThunk('chat/loadMessages', async () => {
 const chatSlice = createSlice({
   name: 'chat',
   initialState,
-  reducers: {},
+  reducers: {
+    updateStreamingContent: (state, action) => {
+      state.streamingContent = action.payload
+    },
+    clearStreamingContent: (state) => {
+      state.streamingContent = ''
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(sendMessage.pending, (state) => {
         state.status = 'loading'
+        state.streamingContent = ''
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.status = 'idle'
         state.messages.push(action.payload.userMessage)
         state.messages.push(action.payload.assistantMessage)
+        state.streamingContent = ''
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.error.message || 'Failed to send message'
+        state.streamingContent = ''
       })
       .addCase(loadMessages.fulfilled, (state, action) => {
         state.messages = action.payload
@@ -112,4 +125,5 @@ const chatSlice = createSlice({
   }
 })
 
+export const { updateStreamingContent, clearStreamingContent } = chatSlice.actions
 export default chatSlice.reducer

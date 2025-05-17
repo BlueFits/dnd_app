@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
 import { Stream } from 'openai/streaming';
+import { ChatMessage, LLMService } from '../llm/llm.interface';
 
 @Injectable()
-export class OpenaiService {
+export class OpenaiService implements LLMService {
   private openai: OpenAI;
 
   constructor() {
@@ -12,8 +13,8 @@ export class OpenaiService {
     });
   }
 
-  async chat(
-    messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+  async stream(
+    messages: ChatMessage[],
   ): Promise<Stream<OpenAI.Chat.Completions.ChatCompletionChunk>> {
     const stream = await this.openai.chat.completions.create({
       model: 'gpt-4',
@@ -29,5 +30,13 @@ export class OpenaiService {
       stream: true,
     });
     return stream;
+  }
+
+  async chat(messages: ChatMessage[]): Promise<string> {
+    const response = await this.openai.chat.completions.create({
+      model: 'gpt-4',
+      messages,
+    });
+    return response.choices[0]?.message?.content || '';
   }
 }

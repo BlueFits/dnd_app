@@ -4,9 +4,8 @@ import { sendMessage, loadMessages } from './store/chatSlice'
 
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const { messages, status } = useAppSelector((state) => state.chat)
+  const { messages, status, streamingContent } = useAppSelector((state) => state.chat)
   const [inputMessage, setInputMessage] = useState('')
-  const [streamingMessage, setStreamingMessage] = useState('')
 
   useEffect(() => {
     dispatch(loadMessages())
@@ -17,40 +16,8 @@ function App(): React.JSX.Element {
     if (!inputMessage.trim() || status === 'loading') return
 
     try {
-      setStreamingMessage('')
-      const response = await fetch('http://localhost:3000/openai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ messages: [...messages, { role: 'user', content: inputMessage }] })
-      })
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (!reader) {
-        throw new Error('Failed to get response reader')
-      }
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value)
-        const lines = chunk.split('\n')
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = JSON.parse(line.slice(6))
-            setStreamingMessage(prev => prev + data.content)
-          }
-        }
-      }
-
       await dispatch(sendMessage(inputMessage))
       setInputMessage('')
-      setStreamingMessage('')
     } catch (error) {
       console.error('Failed to send message:', error)
     }
@@ -73,15 +40,15 @@ function App(): React.JSX.Element {
             </div>
           </div>
         ))}
-        {streamingMessage && (
+        {streamingContent && (
           <div className="flex justify-start">
             <div className="max-w-[70%] bg-white text-gray-800 rounded-lg p-3">
-              {streamingMessage}
+              {streamingContent}
               <span className="animate-pulse">▋</span>
             </div>
           </div>
         )}
-        {status === 'loading' && !streamingMessage && (
+        {status === 'loading' && !streamingContent && (
           <div className="flex justify-start">
             <div className="bg-white text-gray-800 rounded-lg p-3">Thinking...</div>
           </div>
