@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Paper,
+  Typography,
+  CircularProgress
+} from '@mui/material'
+import SendIcon from '@mui/icons-material/Send'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
@@ -24,58 +36,90 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <Container
+      // disableGutters
+      maxWidth="lg"
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        border: '1px solid red'
+      }}
+    >
+      <Box
+        sx={{ flex: 1, overflow: 'auto', py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}
+      >
         {messages
           .filter((message) => message.role !== 'system')
           .map((message, index) => (
-            <div
+            <Box
               key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              sx={{
+                display: 'flex',
+                justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                width: '100%'
+              }}
             >
-              <div
-                className={`max-w-[70%] rounded-lg p-3 ${
-                  message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'
-                }`}
+              <Paper
+                elevation={1}
+                sx={{
+                  maxWidth: '70%',
+                  p: 2,
+                  bgcolor: message.role === 'user' ? 'primary.main' : 'background.paper',
+                  color: message.role === 'user' ? 'primary.contrastText' : 'text.primary'
+                }}
               >
-                {message.content}
-              </div>
-            </div>
+                <Typography>
+                  <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
+                </Typography>
+              </Paper>
+            </Box>
           ))}
         {streamingContent && (
-          <div className="flex justify-start">
-            <div className="max-w-[70%] bg-white text-gray-800 rounded-lg p-3">
-              {streamingContent}
-              <span className="animate-pulse">▋</span>
-            </div>
-          </div>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
+            <Paper elevation={1} sx={{ maxWidth: '70%', p: 2 }}>
+              <Typography>
+                <Markdown remarkPlugins={[remarkGfm]}>{streamingContent}</Markdown>
+                <Box component="span" sx={{ animation: 'pulse 1s infinite' }}>
+                  ▋
+                </Box>
+              </Typography>
+            </Paper>
+          </Box>
         )}
         {status === 'loading' && !streamingContent && (
-          <div className="flex justify-start">
-            <div className="bg-white text-gray-800 rounded-lg p-3">Thinking...</div>
-          </div>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
+            <Paper elevation={1} sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={20} />
+                <Typography>Thinking...</Typography>
+              </Box>
+            </Paper>
+          </Box>
         )}
-      </div>
-      <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
-        <div className="flex space-x-4">
-          <input
-            type="text"
+      </Box>
+      <Paper component="form" onSubmit={handleSubmit} elevation={3} sx={{ p: 2, mt: 'auto' }}>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            fullWidth
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:border-blue-500 text-black"
             disabled={status === 'loading'}
+            variant="outlined"
+            size="small"
           />
-          <button
+          <Button
             type="submit"
+            variant="contained"
             disabled={status === 'loading' || !inputMessage.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            endIcon={<SendIcon />}
           >
             Send
-          </button>
-        </div>
-      </form>
-    </div>
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   )
 }
 
