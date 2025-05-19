@@ -11,8 +11,7 @@ import {
   CircularProgress
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { Message } from './components/chat/Message'
 
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
@@ -38,58 +37,37 @@ function App(): React.JSX.Element {
   return (
     <Container
       // disableGutters
+      // maxWidth={false}
       maxWidth="lg"
       sx={{
         height: '100vh',
         display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid red'
+        flexDirection: 'column'
       }}
     >
       <Box
-        sx={{ flex: 1, overflow: 'auto', py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          py: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2
+        }}
       >
         {messages
           .filter((message) => message.role !== 'system')
           .map((message, index) => (
-            <Box
+            <Message
               key={index}
-              sx={{
-                display: 'flex',
-                justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
-                width: '100%'
-              }}
-            >
-              <Paper
-                elevation={1}
-                sx={{
-                  maxWidth: '70%',
-                  p: 2,
-                  bgcolor: message.role === 'user' ? 'primary.main' : 'background.paper',
-                  color: message.role === 'user' ? 'primary.contrastText' : 'text.primary'
-                }}
-              >
-                <Typography>
-                  <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
-                </Typography>
-              </Paper>
-            </Box>
+              content={message.content}
+              role={message.role === 'system' ? 'assistant' : message.role}
+            />
           ))}
-        {streamingContent && (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
-            <Paper elevation={1} sx={{ maxWidth: '70%', p: 2 }}>
-              <Typography>
-                <Markdown remarkPlugins={[remarkGfm]}>{streamingContent}</Markdown>
-                <Box component="span" sx={{ animation: 'pulse 1s infinite' }}>
-                  ▋
-                </Box>
-              </Typography>
-            </Paper>
-          </Box>
-        )}
+        {streamingContent && <Message content={streamingContent} isStreaming={true} />}
         {status === 'loading' && !streamingContent && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
-            <Paper elevation={1} sx={{ p: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, boxShadow: 'none' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CircularProgress size={20} />
                 <Typography>Thinking...</Typography>

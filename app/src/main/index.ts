@@ -20,11 +20,27 @@ function createWindow(): void {
 
   // Only open DevTools in development mode
   if (is.dev) {
-  mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  // Add zoom control shortcuts
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.control && input.key === '0') {
+      // Reset zoom
+      mainWindow.webContents.setZoomFactor(1)
+    } else if (input.control && (input.key === '=' || input.key === '+')) {
+      // Zoom in
+      const currentZoom = mainWindow.webContents.getZoomFactor()
+      mainWindow.webContents.setZoomFactor(Math.min(currentZoom + 0.1, 3))
+    } else if (input.control && (input.key === '-' || input.key === 'Minus')) {
+      // Zoom out
+      const currentZoom = mainWindow.webContents.getZoomFactor()
+      mainWindow.webContents.setZoomFactor(Math.max(currentZoom - 0.1, 0.5))
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
