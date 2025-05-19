@@ -1,6 +1,7 @@
 import { Box, Paper, Typography } from '@mui/material'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { Components } from 'react-markdown'
 
 export interface MessageProps {
@@ -43,6 +44,7 @@ export const Message = ({
         <Typography component="div" variant="body1">
           <Markdown
             remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
             components={
               {
                 p: ({ children, node }) => {
@@ -65,7 +67,38 @@ export const Message = ({
                       )}
                     </p>
                   )
-                }
+                },
+                hr: () => (
+                  <Box
+                    component="hr"
+                    sx={{
+                      border: 'none',
+                      borderTop: '1px solid',
+                      borderColor: 'divider',
+                      my: 3,
+                      width: '100%'
+                    }}
+                  />
+                ),
+                blockquote: ({ children }) => (
+                  <Box
+                    component="blockquote"
+                    sx={{
+                      borderLeft: '4px solid',
+                      borderColor: 'primary.main',
+                      pl: 2,
+                      py: 1,
+                      my: 2,
+                      bgcolor: 'rgba(0, 0, 0, 0.1)',
+                      borderRadius: '0 4px 4px 0',
+                      '& p': {
+                        margin: 0
+                      }
+                    }}
+                  >
+                    {children}
+                  </Box>
+                )
               } as Components
             }
           >
