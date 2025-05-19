@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
 import {
@@ -17,10 +17,20 @@ function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
   const { messages, status, streamingContent } = useAppSelector((state) => state.chat)
   const [inputMessage, setInputMessage] = useState('')
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = (): void => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
     dispatch(loadMessages())
   }, [dispatch])
+
+  // Scroll to bottom when messages change or streaming content updates
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, streamingContent])
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
@@ -75,6 +85,7 @@ function App(): React.JSX.Element {
             </Paper>
           </Box>
         )}
+        <div ref={messagesEndRef} />
       </Box>
       <Paper component="form" onSubmit={handleSubmit} elevation={3} sx={{ p: 2, mt: 'auto' }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
