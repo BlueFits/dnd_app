@@ -25,7 +25,12 @@ export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async (message: string, { getState, dispatch }) => {
     const state = getState() as { chat: ChatState }
-    const messages = [...state.chat.messages, { role: 'user', content: message }]
+    const userMessage = { role: 'user' as const, content: message }
+
+    // Add user message to state immediately
+    dispatch(chatSlice.actions.addMessage(userMessage))
+
+    const messages = [...state.chat.messages, userMessage]
 
     try {
       const response = await fetch('http://localhost:3000/llm/stream', {
@@ -61,17 +66,13 @@ export const sendMessage = createAsyncThunk(
       }
 
       // Save to JSON file in user data directory
-      await window.api.appendToJsonFile(SESSION_FILE, {
-        role: 'user',
-        content: message
-      })
+      await window.api.appendToJsonFile(SESSION_FILE, userMessage)
       await window.api.appendToJsonFile(SESSION_FILE, {
         role: 'assistant',
         content: assistantMessage
       })
 
       return {
-        userMessage: { role: 'user' as const, content: message },
         assistantMessage: { role: 'assistant' as const, content: assistantMessage }
       }
     } catch (error) {
@@ -102,6 +103,9 @@ const chatSlice = createSlice({
     },
     clearStreamingContent: (state) => {
       state.streamingContent = ''
+    },
+    addMessage: (state, action) => {
+      state.messages.push(action.payload)
     }
   },
   extraReducers: (builder) => {
@@ -112,7 +116,6 @@ const chatSlice = createSlice({
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.status = 'idle'
-        state.messages.push(action.payload.userMessage)
         state.messages.push(action.payload.assistantMessage)
         state.streamingContent = ''
       })
@@ -127,5 +130,5 @@ const chatSlice = createSlice({
   }
 })
 
-export const { updateStreamingContent, clearStreamingContent } = chatSlice.actions
+export const { updateStreamingContent, clearStreamingContent, addMessage } = chatSlice.actions
 export default chatSlice.reducer
