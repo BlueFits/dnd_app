@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
 import {
@@ -6,22 +6,23 @@ import {
   Button,
   Container,
   TextField,
-  Paper,
-  Typography,
-  CircularProgress
+  Paper
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
-import { Message } from './components/chat/Message'
+import { MessageList } from './components/chat/MessageList'
 
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
   const { messages, status, streamingContent } = useAppSelector((state) => state.chat)
   const [inputMessage, setInputMessage] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = (): void => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const scrollToBottom = useCallback((): void => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+    }
+  }, [])
 
   useEffect(() => {
     dispatch(loadMessages())
@@ -29,8 +30,9 @@ function App(): React.JSX.Element {
 
   // Scroll to bottom when messages change or streaming content updates
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, streamingContent])
+    const timeoutId = setTimeout(scrollToBottom, 100)
+    return () => clearTimeout(timeoutId)
+  }, [messages, streamingContent, scrollToBottom])
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
@@ -44,6 +46,11 @@ function App(): React.JSX.Element {
     }
   }
 
+  const filteredMessages = useMemo(
+    () => messages.filter((message) => message.role !== 'system'),
+    [messages]
+  )
+
   return (
     <Container
       // disableGutters
@@ -56,6 +63,7 @@ function App(): React.JSX.Element {
       }}
     >
       <Box
+        ref={messagesContainerRef}
         sx={{
           flex: 1,
           overflow: 'auto',
@@ -65,26 +73,11 @@ function App(): React.JSX.Element {
           gap: 2
         }}
       >
-        {messages
-          .filter((message) => message.role !== 'system')
-          .map((message, index) => (
-            <Message
-              key={index}
-              content={message.content}
-              role={message.role === 'system' ? 'assistant' : message.role}
-            />
-          ))}
-        {streamingContent && <Message content={streamingContent} isStreaming={true} />}
-        {status === 'loading' && !streamingContent && (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
-            <Paper elevation={0} sx={{ p: 2, boxShadow: 'none' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CircularProgress size={20} />
-                <Typography>Thinking...</Typography>
-              </Box>
-            </Paper>
-          </Box>
-        )}
+        <MessageList
+          messages={filteredMessages}
+          streamingContent={streamingContent}
+          status={status}
+        />
         <div ref={messagesEndRef} />
       </Box>
       <Paper component="form" onSubmit={handleSubmit} elevation={3} sx={{ p: 2, mt: 'auto' }}>
