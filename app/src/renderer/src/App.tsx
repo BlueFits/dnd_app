@@ -7,6 +7,40 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
 
 // Styled components
+const VideoContainer = styled(Box)({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: -2,
+  overflow: 'hidden'
+})
+
+const VideoElement = styled('video')({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  minWidth: '100%',
+  minHeight: '100%',
+  width: 'auto',
+  height: 'auto',
+  transform: 'translate(-50%, -50%)',
+  objectFit: 'cover',
+  filter: 'brightness(0.7)'
+})
+
+const Overlay = styled(Box)(({ showVideo }: { showVideo: boolean }) => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: showVideo ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.1)',
+  zIndex: -1,
+  backdropFilter: showVideo ? 'blur(2px)' : 'none'
+}))
+
 const RootContainer = styled(Box)({
   height: '100vh',
   display: 'flex',
@@ -93,9 +127,12 @@ function App(): React.JSX.Element {
   const { messages, status, streamingContent } = useAppSelector((state) => state.chat)
   const [inputMessage, setInputMessage] = useState('')
   const [showScrollButton, setShowScrollButton] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [showVideo, setShowVideo] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLFormElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [buttonPosition, setButtonPosition] = useState(0)
 
   const scrollToBottom = useCallback((): void => {
@@ -143,6 +180,17 @@ function App(): React.JSX.Element {
     return () => clearTimeout(timeoutId)
   }, [messages, streamingContent, scrollToBottom])
 
+  useEffect(() => {
+    const video = videoRef.current
+    if (video) {
+      console.log('Video element found, attempting to play')
+      video
+        .play()
+        .then(() => console.log('Video started playing'))
+        .catch((error) => console.error('Error playing video:', error))
+    }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     if (!inputMessage.trim() || status === 'loading') return
@@ -171,6 +219,22 @@ function App(): React.JSX.Element {
 
   return (
     <RootContainer>
+      {showVideo && (
+        <VideoContainer>
+          <VideoElement
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            onLoadedData={() => console.log('Video data loaded')}
+            onError={(e) => console.error('Video error:', e)}
+          >
+            <source src="/videos/BigBuckBunny.mp4" type="video/mp4" />
+          </VideoElement>
+        </VideoContainer>
+      )}
+      <Overlay showVideo={showVideo} />
       <MessagesContainer ref={messagesContainerRef}>
         <ContentContainer>
           <MessageList
