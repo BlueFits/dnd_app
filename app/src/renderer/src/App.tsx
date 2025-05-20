@@ -70,7 +70,20 @@ function App(): React.JSX.Element {
           py: 2,
           display: 'flex',
           flexDirection: 'column',
-          gap: 2
+          gap: 2,
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#888',
+            borderRadius: '4px',
+            '&:hover': {
+              background: '#666',
+            },
+          },
         }}
       >
         <MessageList
