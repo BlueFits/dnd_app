@@ -24,7 +24,7 @@ export const Message = memo(
         <Paper
           elevation={0}
           sx={{
-            maxWidth: '100%',
+            maxWidth: role === 'user' ? '80%' : '100%',
             p: 2,
             bgcolor: role === 'user' ? 'rgb(48,48,48)' : 'transparent',
             color: 'primary.contrastText',
@@ -83,7 +83,7 @@ export const Message = memo(
                       component="blockquote"
                       sx={{
                         borderLeft: '4px solid',
-                        borderColor: 'primary.main',
+                        borderColor: '#424242',
                         pl: 2,
                         py: 1,
                         my: 2,

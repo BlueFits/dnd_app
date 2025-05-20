@@ -1,13 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Paper
-} from '@mui/material'
+import { Box, IconButton, Container, TextField, Paper } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import { MessageList } from './components/chat/MessageList'
 
@@ -70,20 +64,7 @@ function App(): React.JSX.Element {
           py: 2,
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
-          '&::-webkit-scrollbar': {
-            width: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#888',
-            borderRadius: '4px',
-            '&:hover': {
-              background: '#666',
-            },
-          },
+          gap: 2
         }}
       >
         <MessageList
@@ -93,8 +74,26 @@ function App(): React.JSX.Element {
         />
         <div ref={messagesEndRef} />
       </Box>
-      <Paper component="form" onSubmit={handleSubmit} elevation={3} sx={{ p: 2, mt: 'auto' }}>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+      <Paper
+        component="form"
+        onSubmit={handleSubmit}
+        elevation={0}
+        sx={{
+          p: 2,
+          mt: 'auto',
+          mb: '50px',
+          borderRadius: '25px',
+          background: 'transparent',
+          border: (theme) => `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2
+          }}
+        >
           <TextField
             fullWidth
             value={inputMessage}
@@ -103,15 +102,45 @@ function App(): React.JSX.Element {
             disabled={status === 'loading'}
             variant="outlined"
             size="small"
+            multiline
+            maxRows={4}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  border: 'none'
+                },
+                '&:hover fieldset': {
+                  border: 'none'
+                },
+                '&.Mui-focused fieldset': {
+                  border: 'none'
+                }
+              }
+            }}
           />
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={status === 'loading' || !inputMessage.trim()}
-            endIcon={<SendIcon />}
-          >
-            Send
-          </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton
+              type="submit"
+              disabled={status === 'loading' || !inputMessage.trim()}
+              sx={{
+                backgroundColor: '#4c5050',
+                '&:hover': {
+                  backgroundColor: '#666'
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'action.disabledBackground',
+                  '& .MuiSvgIcon-root': {
+                    color: '#666'
+                  }
+                },
+                '& .MuiSvgIcon-root': {
+                  color: 'white'
+                }
+              }}
+            >
+              <SendIcon />
+            </IconButton>
+          </Box>
         </Box>
       </Paper>
     </Container>

@@ -34,12 +34,12 @@ export const theme = createTheme({
     },
     body1: {
       fontSize: '1.125rem', // 18px - Similar to ChatGPT's main text
-      lineHeight: 1.6,
+      lineHeight: 1.7,
       color: '#ffffff'
     },
     body2: {
       fontSize: '1rem', // 16px
-      lineHeight: 1.6,
+      lineHeight: 1.5,
       color: '#ffffff'
     }
   },
@@ -50,6 +50,19 @@ export const theme = createTheme({
           fontSize: '1.125rem', // 18px base font size
           backgroundColor: 'rgb(33,33,33)',
           color: '#ffffff'
+        },
+        '*::-webkit-scrollbar': {
+          width: '8px'
+        },
+        '*::-webkit-scrollbar-track': {
+          background: 'transparent'
+        },
+        '*::-webkit-scrollbar-thumb': {
+          background: '#888',
+          borderRadius: '4px',
+          '&:hover': {
+            background: '#666'
+          }
         },
         '@keyframes pulse': {
           '0%': {
