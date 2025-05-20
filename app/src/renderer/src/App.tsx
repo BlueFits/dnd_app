@@ -118,6 +118,7 @@ function App(): React.JSX.Element {
       container.addEventListener('scroll', handleScroll)
       return () => container.removeEventListener('scroll', handleScroll)
     }
+    return () => {}
   }, [handleScroll])
 
   useEffect(() => {
