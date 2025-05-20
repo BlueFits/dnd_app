@@ -1,10 +1,92 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
-import { Box, IconButton, TextField, Paper, Fade } from '@mui/material'
+import { Box, IconButton, TextField, Paper, Fade, styled } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
+
+// Styled components
+const RootContainer = styled(Box)({
+  height: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  overflow: 'hidden'
+})
+
+const MessagesContainer = styled(Box)({
+  flex: 1,
+  overflow: 'auto',
+  paddingTop: 16,
+  paddingBottom: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 16
+})
+
+const ContentContainer = styled(Box)(({ theme }) => ({
+  maxWidth: theme.breakpoints.values.lg,
+  width: '100%',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2)
+}))
+
+const ScrollButton = styled(IconButton)({
+  backgroundColor: '#4c5050',
+  '&:hover': {
+    backgroundColor: '#666'
+  },
+  '& .MuiSvgIcon-root': {
+    color: 'white'
+  }
+})
+
+const SendButton = styled(IconButton)(({ theme }) => ({
+  backgroundColor: '#4c5050',
+  '&:hover': {
+    backgroundColor: '#666'
+  },
+  '&.Mui-disabled': {
+    backgroundColor: theme.palette.action.disabledBackground,
+    '& .MuiSvgIcon-root': {
+      color: '#666'
+    }
+  },
+  '& .MuiSvgIcon-root': {
+    color: 'white'
+  }
+}))
+
+const InputContainer = styled(Box)({
+  paddingLeft: 16,
+  paddingRight: 16
+})
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: 16,
+  marginTop: 'auto',
+  marginBottom: 50,
+  borderRadius: 25,
+  background: 'transparent',
+  border: `1px solid ${theme.palette.divider}`
+})) as typeof Paper
+
+const StyledTextField = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      border: 'none'
+    },
+    '&:hover fieldset': {
+      border: 'none'
+    },
+    '&.Mui-focused fieldset': {
+      border: 'none'
+    }
+  }
+})
 
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
@@ -22,7 +104,7 @@ function App(): React.JSX.Element {
     }
   }, [])
 
-  const handleScroll = useCallback(() => {
+  const handleScroll = useCallback((): void => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current
       const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100
@@ -39,20 +121,10 @@ function App(): React.JSX.Element {
   }, [handleScroll])
 
   useEffect(() => {
-    dispatch(loadMessages())
-  }, [dispatch])
-
-  // Scroll to bottom when messages change or streaming content updates
-  useEffect(() => {
-    const timeoutId = setTimeout(scrollToBottom, 100)
-    return () => clearTimeout(timeoutId)
-  }, [messages, streamingContent, scrollToBottom])
-
-  useEffect(() => {
     const updateButtonPosition = (): void => {
       if (inputRef.current) {
         const inputRect = inputRef.current.getBoundingClientRect()
-        setButtonPosition(inputRect.top - 60) // 60px above the input
+        setButtonPosition(inputRect.top - 60)
       }
     }
 
@@ -60,6 +132,15 @@ function App(): React.JSX.Element {
     window.addEventListener('resize', updateButtonPosition)
     return () => window.removeEventListener('resize', updateButtonPosition)
   }, [])
+
+  useEffect(() => {
+    dispatch(loadMessages())
+  }, [dispatch])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(scrollToBottom, 100)
+    return () => clearTimeout(timeoutId)
+  }, [messages, streamingContent, scrollToBottom])
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
@@ -73,41 +154,33 @@ function App(): React.JSX.Element {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent): void => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      if (inputMessage.trim() && status !== 'loading') {
+        handleSubmit(e as unknown as React.FormEvent)
+      }
+    }
+  }
+
   const filteredMessages = useMemo(
     () => messages.filter((message) => message.role !== 'system'),
     [messages]
   )
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      <Box
-        ref={messagesContainerRef}
-        sx={{
-          flex: 1,
-          overflow: 'auto',
-          py: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2
-        }}
-      >
-        <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto', px: 2 }}>
+    <RootContainer>
+      <MessagesContainer ref={messagesContainerRef}>
+        <ContentContainer>
           <MessageList
             messages={filteredMessages}
             streamingContent={streamingContent}
             status={status}
           />
           <div ref={messagesEndRef} />
-        </Box>
-      </Box>
+        </ContentContainer>
+      </MessagesContainer>
+
       <Fade in={showScrollButton}>
         <Box
           sx={{
@@ -118,105 +191,38 @@ function App(): React.JSX.Element {
             zIndex: 1
           }}
         >
-          <IconButton
-            onClick={scrollToBottom}
-            sx={{
-              backgroundColor: '#4c5050',
-              '&:hover': {
-                backgroundColor: '#666'
-              },
-              '& .MuiSvgIcon-root': {
-                color: 'white'
-              }
-            }}
-          >
+          <ScrollButton onClick={scrollToBottom}>
             <KeyboardArrowDownIcon />
-          </IconButton>
+          </ScrollButton>
         </Box>
       </Fade>
-      <Box sx={{ px: 2 }}>
-        <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto' }}>
-          <Paper
-            ref={inputRef}
-            component="form"
-            onSubmit={handleSubmit}
-            elevation={0}
-            sx={{
-              p: 2,
-              mt: 'auto',
-              mb: '50px',
-              borderRadius: '25px',
-              background: 'transparent',
-              border: (theme) => `1px solid ${theme.palette.divider}`
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2
-              }}
-            >
-              <TextField
+
+      <InputContainer>
+        <ContentContainer>
+          <StyledPaper ref={inputRef} component="form" onSubmit={handleSubmit} elevation={0}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <StyledTextField
                 fullWidth
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={(e: React.KeyboardEvent) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (inputMessage.trim() && status !== 'loading') {
-                      handleSubmit(e as unknown as React.FormEvent);
-                    }
-                  }
-                }}
+                onKeyDown={handleKeyDown}
                 placeholder="What would you like to do?"
                 disabled={status === 'loading'}
                 variant="outlined"
                 size="small"
                 multiline
                 maxRows={4}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      border: 'none'
-                    },
-                    '&:hover fieldset': {
-                      border: 'none'
-                    },
-                    '&.Mui-focused fieldset': {
-                      border: 'none'
-                    }
-                  }
-                }}
               />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <IconButton
-                  type="submit"
-                  disabled={status === 'loading' || !inputMessage.trim()}
-                  sx={{
-                    backgroundColor: '#4c5050',
-                    '&:hover': {
-                      backgroundColor: '#666'
-                    },
-                    '&.Mui-disabled': {
-                      backgroundColor: 'action.disabledBackground',
-                      '& .MuiSvgIcon-root': {
-                        color: '#666'
-                      }
-                    },
-                    '& .MuiSvgIcon-root': {
-                      color: 'white'
-                    }
-                  }}
-                >
+                <SendButton type="submit" disabled={status === 'loading' || !inputMessage.trim()}>
                   <SendIcon />
-                </IconButton>
+                </SendButton>
               </Box>
             </Box>
-          </Paper>
-        </Box>
-      </Box>
-    </Box>
+          </StyledPaper>
+        </ContentContainer>
+      </InputContainer>
+    </RootContainer>
   )
 }
 
