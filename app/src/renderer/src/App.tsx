@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
-import { Box, IconButton, Container, TextField, Paper, Fade } from '@mui/material'
+import { Box, IconButton, TextField, Paper, Fade } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
@@ -79,15 +79,13 @@ function App(): React.JSX.Element {
   )
 
   return (
-    <Container
-      // disableGutters
-      // maxWidth={false}
-      maxWidth="lg"
+    <Box
       sx={{
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
       <Box
@@ -101,12 +99,14 @@ function App(): React.JSX.Element {
           gap: 2
         }}
       >
-        <MessageList
-          messages={filteredMessages}
-          streamingContent={streamingContent}
-          status={status}
-        />
-        <div ref={messagesEndRef} />
+        <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto', px: 2 }}>
+          <MessageList
+            messages={filteredMessages}
+            streamingContent={streamingContent}
+            status={status}
+          />
+          <div ref={messagesEndRef} />
+        </Box>
       </Box>
       <Fade in={showScrollButton}>
         <Box
@@ -134,85 +134,89 @@ function App(): React.JSX.Element {
           </IconButton>
         </Box>
       </Fade>
-      <Paper
-        ref={inputRef}
-        component="form"
-        onSubmit={handleSubmit}
-        elevation={0}
-        sx={{
-          p: 2,
-          mt: 'auto',
-          mb: '50px',
-          borderRadius: '25px',
-          background: 'transparent',
-          border: (theme) => `1px solid ${theme.palette.divider}`
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2
-          }}
-        >
-          <TextField
-            fullWidth
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e: React.KeyboardEvent) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (inputMessage.trim() && status !== 'loading') {
-                  handleSubmit(e as unknown as React.FormEvent);
-                }
-              }
-            }}
-            placeholder="What would you like to do?"
-            disabled={status === 'loading'}
-            variant="outlined"
-            size="small"
-            multiline
-            maxRows={4}
+      <Box sx={{ px: 2 }}>
+        <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto' }}>
+          <Paper
+            ref={inputRef}
+            component="form"
+            onSubmit={handleSubmit}
+            elevation={0}
             sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  border: 'none'
-                },
-                '&:hover fieldset': {
-                  border: 'none'
-                },
-                '&.Mui-focused fieldset': {
-                  border: 'none'
-                }
-              }
+              p: 2,
+              mt: 'auto',
+              mb: '50px',
+              borderRadius: '25px',
+              background: 'transparent',
+              border: (theme) => `1px solid ${theme.palette.divider}`
             }}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <IconButton
-              type="submit"
-              disabled={status === 'loading' || !inputMessage.trim()}
+          >
+            <Box
               sx={{
-                backgroundColor: '#4c5050',
-                '&:hover': {
-                  backgroundColor: '#666'
-                },
-                '&.Mui-disabled': {
-                  backgroundColor: 'action.disabledBackground',
-                  '& .MuiSvgIcon-root': {
-                    color: '#666'
-                  }
-                },
-                '& .MuiSvgIcon-root': {
-                  color: 'white'
-                }
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2
               }}
             >
-              <SendIcon />
-            </IconButton>
-          </Box>
+              <TextField
+                fullWidth
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (inputMessage.trim() && status !== 'loading') {
+                      handleSubmit(e as unknown as React.FormEvent);
+                    }
+                  }
+                }}
+                placeholder="What would you like to do?"
+                disabled={status === 'loading'}
+                variant="outlined"
+                size="small"
+                multiline
+                maxRows={4}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      border: 'none'
+                    },
+                    '&:hover fieldset': {
+                      border: 'none'
+                    },
+                    '&.Mui-focused fieldset': {
+                      border: 'none'
+                    }
+                  }
+                }}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <IconButton
+                  type="submit"
+                  disabled={status === 'loading' || !inputMessage.trim()}
+                  sx={{
+                    backgroundColor: '#4c5050',
+                    '&:hover': {
+                      backgroundColor: '#666'
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: 'action.disabledBackground',
+                      '& .MuiSvgIcon-root': {
+                        color: '#666'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: 'white'
+                    }
+                  }}
+                >
+                  <SendIcon />
+                </IconButton>
+              </Box>
+            </Box>
+          </Paper>
         </Box>
-      </Paper>
-    </Container>
+      </Box>
+    </Box>
   )
 }
 
