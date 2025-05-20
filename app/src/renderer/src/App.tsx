@@ -1,22 +1,42 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
-import { Box, IconButton, Container, TextField, Paper } from '@mui/material'
+import { Box, IconButton, Container, TextField, Paper, Fade } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
 
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
   const { messages, status, streamingContent } = useAppSelector((state) => state.chat)
   const [inputMessage, setInputMessage] = useState('')
+  const [showScrollButton, setShowScrollButton] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLFormElement>(null)
+  const [buttonPosition, setButtonPosition] = useState(0)
 
   const scrollToBottom = useCallback((): void => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
   }, [])
+
+  const handleScroll = useCallback(() => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current
+      const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100
+      setShowScrollButton(isScrolledUp)
+    }
+  }, [])
+
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+      return () => container.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
 
   useEffect(() => {
     dispatch(loadMessages())
@@ -27,6 +47,19 @@ function App(): React.JSX.Element {
     const timeoutId = setTimeout(scrollToBottom, 100)
     return () => clearTimeout(timeoutId)
   }, [messages, streamingContent, scrollToBottom])
+
+  useEffect(() => {
+    const updateButtonPosition = (): void => {
+      if (inputRef.current) {
+        const inputRect = inputRef.current.getBoundingClientRect()
+        setButtonPosition(inputRect.top - 60) // 60px above the input
+      }
+    }
+
+    updateButtonPosition()
+    window.addEventListener('resize', updateButtonPosition)
+    return () => window.removeEventListener('resize', updateButtonPosition)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
@@ -53,7 +86,8 @@ function App(): React.JSX.Element {
       sx={{
         height: '100vh',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        position: 'relative'
       }}
     >
       <Box
@@ -74,7 +108,34 @@ function App(): React.JSX.Element {
         />
         <div ref={messagesEndRef} />
       </Box>
+      <Fade in={showScrollButton}>
+        <Box
+          sx={{
+            position: 'fixed',
+            top: buttonPosition,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1
+          }}
+        >
+          <IconButton
+            onClick={scrollToBottom}
+            sx={{
+              backgroundColor: '#4c5050',
+              '&:hover': {
+                backgroundColor: '#666'
+              },
+              '& .MuiSvgIcon-root': {
+                color: 'white'
+              }
+            }}
+          >
+            <KeyboardArrowDownIcon />
+          </IconButton>
+        </Box>
+      </Fade>
       <Paper
+        ref={inputRef}
         component="form"
         onSubmit={handleSubmit}
         elevation={0}
@@ -98,7 +159,15 @@ function App(): React.JSX.Element {
             fullWidth
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type your message..."
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (inputMessage.trim() && status !== 'loading') {
+                  handleSubmit(e as unknown as React.FormEvent);
+                }
+              }
+            }}
+            placeholder="What would you like to do?"
             disabled={status === 'loading'}
             variant="outlined"
             size="small"
