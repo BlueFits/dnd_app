@@ -1,13 +1,19 @@
 {
   "name": "Ilumi",
-  "level": 1,
-  "experience": 15,
-  "reputation": "unknown",
+  "level": 2,
+  "experience": 195,
+  "reputation": "respected",
   "traits": [
     "creative",
-    "strategic"
+    "strategic",
+    "courageous",
+    "unpredictable",
+    "tenacious",
+    "determined",
+    "tough"
   ],
   "inventory": [
-    "Greatsword"
+    "greatsword",
+    "enchanted bow"
   ]
 }

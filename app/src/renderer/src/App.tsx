@@ -123,6 +123,11 @@ const StyledTextField = styled(TextField)({
   }
 })
 
+const StreamPlaceholder = styled(Box)({
+  height: '60vh',
+  width: '100%'
+})
+
 const PlayerInfo = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1),
   marginBottom: theme.spacing(2),
@@ -139,27 +144,26 @@ function App(): React.JSX.Element {
   const player = useAppSelector((state) => state.player)
   const [inputMessage, setInputMessage] = useState('')
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [showStreamPlaceholder, setShowStreamPlaceholder] = useState(false)
   const [showVideo] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastMessageRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLFormElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [buttonPosition, setButtonPosition] = useState(0)
 
   const scrollToBottom = useCallback((): void => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      })
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [])
 
   const handleScroll = useCallback((): void => {
-    if (messagesContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current
-      const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100
-      setShowScrollButton(isScrolledUp)
+    if (messagesContainerRef.current && lastMessageRef.current) {
+      const containerRect = messagesContainerRef.current.getBoundingClientRect()
+      const messageRect = lastMessageRef.current.getBoundingClientRect()
+      const isAboveLastMessage = messageRect.bottom > containerRect.bottom
+      setShowScrollButton(isAboveLastMessage)
     }
   }, [])
 
@@ -192,13 +196,21 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     if (status === 'loading') {
-      scrollToBottom()
+      setShowStreamPlaceholder(true)
+      setTimeout(() => {
+        scrollToBottom()
+      }, 500)
+    } else {
+      // Scroll to the last user message
+      if (lastMessageRef.current) {
+        lastMessageRef.current.scrollIntoView({ behavior: 'smooth' })
+        // Hide placeholder after scroll completes
+        // setTimeout(() => {
+        //   setShowStreamPlaceholder(false)
+        // }, 300)
+      }
     }
-  }, [streamingContent, status, scrollToBottom])
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages, scrollToBottom])
+  }, [scrollToBottom, status])
 
   useEffect(() => {
     const video = videoRef.current
@@ -271,8 +283,9 @@ function App(): React.JSX.Element {
             messages={filteredMessages}
             streamingContent={streamingContent}
             status={status}
+            lastMessageRef={lastMessageRef}
           />
-          <div ref={messagesEndRef} />
+          {showStreamPlaceholder && <StreamPlaceholder />}
         </ContentContainer>
       </MessagesContainer>
 

@@ -3,11 +3,11 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { Components } from 'react-markdown'
-import { memo } from 'react'
+import { forwardRef } from 'react'
 
-export interface MessageProps {
+interface MessageProps {
   content: string
-  role?: 'user' | 'assistant'
+  role: 'user' | 'assistant'
   isStreaming?: boolean
 }
 
@@ -61,10 +61,10 @@ const StyledBlockquote = styled('blockquote')(({ theme }) => ({
   }
 }))
 
-export const Message = memo(
-  ({ content, role = 'assistant', isStreaming = false }: MessageProps): React.JSX.Element => {
+export const Message = forwardRef<HTMLDivElement, MessageProps>(
+  ({ content, role = 'assistant', isStreaming = false }, ref) => {
     return (
-      <MessageContainer role={role}>
+      <MessageContainer ref={ref} role={role}>
         <MessagePaper role={role} elevation={0}>
           <Box sx={{ typography: 'body1' }}>
             <Markdown
