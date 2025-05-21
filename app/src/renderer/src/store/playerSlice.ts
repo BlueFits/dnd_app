@@ -44,7 +44,7 @@ const initialState: PlayerState = {
 
 export const loadPlayerData = createAsyncThunk('player/loadData', async () => {
   try {
-    const playerData = await window.api.readJsonFile(PLAYER_FILE) as PlayerData
+    const playerData = (await window.api.readJsonFile(PLAYER_FILE)) as PlayerData
     return { ...initialState, ...playerData } as PlayerState
   } catch (error) {
     throw new Error(
@@ -57,7 +57,6 @@ export const updatePlayerData = createAsyncThunk(
   'player/updateData',
   async (playerData: Partial<PlayerData>, { getState }) => {
     try {
-      console.log("!!!", playerData)
       const currentState = getState() as { player: PlayerState }
 
       // Handle experience accumulation and level-up logic

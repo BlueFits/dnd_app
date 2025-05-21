@@ -34,12 +34,12 @@ export const theme = createTheme({
     },
     body1: {
       fontSize: '1.125rem', // 18px - Similar to ChatGPT's main text
-      lineHeight: 1.7,
+      lineHeight: 1.8,
       color: '#ffffff'
     },
     body2: {
       fontSize: '1rem', // 16px
-      lineHeight: 1.5,
+      lineHeight: 1.8,
       color: '#ffffff'
     }
   },
