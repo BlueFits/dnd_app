@@ -6,6 +6,8 @@ const api = {
   readJsonFile: (filePath: string) => ipcRenderer.invoke('read-json-file', filePath),
   appendToJsonFile: (filePath: string, newData: Record<string, unknown>) =>
     ipcRenderer.invoke('append-to-json-file', filePath, newData),
+  writeJsonFile: (filePath: string, data: unknown) =>
+    ipcRenderer.invoke('write-json-file', filePath, data),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path')
 } as const
 

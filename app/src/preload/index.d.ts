@@ -6,6 +6,7 @@ declare global {
     api: {
       readJsonFile: (filePath: string) => Promise<unknown>
       appendToJsonFile: (filePath: string, newData: Record<string, unknown>) => Promise<unknown>
+      writeJsonFile: (filePath: string, data: unknown) => Promise<void>
       getUserDataPath: () => Promise<string>
     }
   }

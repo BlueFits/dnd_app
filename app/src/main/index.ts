@@ -25,7 +25,7 @@ function createWindow(): void {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self' file:; media-src 'self' file: https: http:; img-src 'self' file: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+          "default-src 'self' file:; connect-src 'self' file: http://localhost:*; media-src 'self' file: https: http:; img-src 'self' file: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
         ]
       }
     })

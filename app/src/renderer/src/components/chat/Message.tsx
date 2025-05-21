@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, styled } from '@mui/material'
+import { Box, Paper, styled } from '@mui/material'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -66,7 +66,7 @@ export const Message = memo(
     return (
       <MessageContainer role={role}>
         <MessagePaper role={role} elevation={0}>
-          <Typography component="div" variant="body1">
+          <Box sx={{ typography: 'body1' }}>
             <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
@@ -75,10 +75,10 @@ export const Message = memo(
                   p: ({ children, node }) => {
                     const isLastParagraph = node?.position?.end.line === content.split('\n').length
                     return (
-                      <p>
+                      <Box sx={{ m: 0, mb: 2, '&:last-child': { mb: 0 } }}>
                         {children}
                         {isStreaming && isLastParagraph && <Cursor>▋</Cursor>}
-                      </p>
+                      </Box>
                     )
                   },
                   hr: () => <StyledHr />,
@@ -88,7 +88,7 @@ export const Message = memo(
             >
               {content}
             </Markdown>
-          </Typography>
+          </Box>
         </MessagePaper>
       </MessageContainer>
     )

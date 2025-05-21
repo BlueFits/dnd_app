@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
 import { Stream } from 'openai/streaming';
-import { ChatMessage, LLMService } from '../llm/llm.interface';
+import { ChatMessage, LLMService, PlayerData } from '../llm/llm.interface';
 import { PromptManagerService } from '../llm/prompts/prompt-manager.service';
 
 @Injectable()
@@ -16,19 +16,26 @@ export class OpenaiService implements LLMService {
 
   async stream(
     messages: ChatMessage[],
+    player: PlayerData,
   ): Promise<Stream<OpenAI.Chat.Completions.ChatCompletionChunk>> {
-    const messagesWithPrompts = this.promptManager.applyPrompts(messages);
+    const messagesWithPrompts = this.promptManager.applyPrompts(
+      messages,
+      player,
+    );
 
     const stream = await this.openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4',
       messages: messagesWithPrompts,
       stream: true,
     });
     return stream;
   }
 
-  async chat(messages: ChatMessage[]): Promise<string> {
-    const messagesWithPrompts = this.promptManager.applyPrompts(messages);
+  async chat(messages: ChatMessage[], player: PlayerData): Promise<string> {
+    const messagesWithPrompts = this.promptManager.applyPrompts(
+      messages,
+      player,
+    );
 
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4',

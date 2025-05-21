@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
-import { Box, IconButton, TextField, Paper, Fade, styled } from '@mui/material'
+import { loadPlayerData } from './store/playerSlice'
+import { Box, IconButton, TextField, Paper, Fade, styled, Typography } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
@@ -122,13 +123,23 @@ const StyledTextField = styled(TextField)({
   }
 })
 
+const PlayerInfo = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1),
+  marginBottom: theme.spacing(2),
+  borderRadius: theme.spacing(1),
+  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  display: 'flex',
+  gap: theme.spacing(2),
+  alignItems: 'center'
+}))
+
 function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
   const { messages, status, streamingContent } = useAppSelector((state) => state.chat)
+  const player = useAppSelector((state) => state.player)
   const [inputMessage, setInputMessage] = useState('')
   const [showScrollButton, setShowScrollButton] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [showVideo, setShowVideo] = useState(false)
+  const [showVideo] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLFormElement>(null)
@@ -137,7 +148,10 @@ function App(): React.JSX.Element {
 
   const scrollToBottom = useCallback((): void => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
     }
   }, [])
 
@@ -173,12 +187,18 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     dispatch(loadMessages())
+    dispatch(loadPlayerData())
   }, [dispatch])
 
   useEffect(() => {
-    const timeoutId = setTimeout(scrollToBottom, 100)
-    return () => clearTimeout(timeoutId)
-  }, [messages, streamingContent, scrollToBottom])
+    if (status === 'loading') {
+      scrollToBottom()
+    }
+  }, [streamingContent, status, scrollToBottom])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, scrollToBottom])
 
   useEffect(() => {
     const video = videoRef.current
@@ -237,6 +257,16 @@ function App(): React.JSX.Element {
       <Overlay showVideo={showVideo} />
       <MessagesContainer ref={messagesContainerRef}>
         <ContentContainer>
+          {player.name && (
+            <PlayerInfo>
+              <Typography variant="subtitle1">
+                {player.name} (Level {player.level})
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {player.traits.join(', ')}
+              </Typography>
+            </PlayerInfo>
+          )}
           <MessageList
             messages={filteredMessages}
             streamingContent={streamingContent}

@@ -27,6 +27,25 @@ export function registerFileHandlers(): void {
     }
   })
 
+  ipcMain.handle('write-json-file', async (_, filePath: string, data: unknown) => {
+    try {
+      const basePath =
+        is.dev && process.env.NODE_ENV === 'development'
+          ? join(app.getAppPath(), '..')
+          : app.getPath('userData')
+
+      const fullPath =
+        is.dev && process.env.NODE_ENV === 'development'
+          ? join(basePath, 'app', 'sessions', filePath)
+          : join(basePath, filePath)
+
+      await writeFile(fullPath, JSON.stringify(data, null, 2), 'utf-8')
+    } catch (error) {
+      console.error('Error writing JSON file:', error)
+      throw error
+    }
+  })
+
   ipcMain.handle(
     'append-to-json-file',
     async (_, filePath: string, newData: Record<string, unknown>) => {

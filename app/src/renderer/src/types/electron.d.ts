@@ -9,5 +9,6 @@ interface Window {
   api: {
     appendToJsonFile(arg0: string, newMessage: { role: string; content: string }): unknown
     readJsonFile: (filePath: string) => Promise<unknown>
+    writeJsonFile: (filePath: string, data: unknown) => Promise<void>
   }
 }
