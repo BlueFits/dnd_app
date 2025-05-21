@@ -2,19 +2,21 @@ import { Module } from '@nestjs/common';
 import { OpenaiService } from '../openai/openai.service';
 import { PromptManagerService } from './prompts/prompt-manager.service';
 import { LLMController } from './llm.controller';
-import { GeminiModule } from '../gemini/gemini.module';
-// import { LLMService } from './llm.interface';
+import { GeminiService } from '../gemini/gemini.service';
 
 @Module({
-  imports: [GeminiModule],
   controllers: [LLMController],
   providers: [
     {
       provide: 'LLM_SERVICE',
       useClass: OpenaiService,
     },
+    {
+      provide: 'CHARACTER_UPDATE_SERVICE',
+      useClass: GeminiService,
+    },
     PromptManagerService,
   ],
-  exports: ['LLM_SERVICE', PromptManagerService],
+  exports: ['LLM_SERVICE', 'CHARACTER_UPDATE_SERVICE', PromptManagerService],
 })
 export class LLMModule {}

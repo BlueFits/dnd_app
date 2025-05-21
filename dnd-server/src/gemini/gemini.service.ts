@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { ChatMessage, PlayerData } from 'src/llm/llm.interface';
+import {
+  ChatMessage,
+  PlayerData,
+  CharacterUpdateService,
+} from 'src/llm/llm.interface';
 import { PromptManagerService } from '../llm/prompts/prompt-manager.service';
 
 @Injectable()
-export class GeminiService {
+export class GeminiService implements CharacterUpdateService {
   private genAI: GoogleGenerativeAI;
 
   constructor(private readonly promptManager: PromptManagerService) {
@@ -12,7 +16,10 @@ export class GeminiService {
   }
 
   /* Will be used to update the character sheet based on the narration */
-  async chat(messages: ChatMessage, player: PlayerData): Promise<PlayerData> {
+  async updateCharacter(
+    messages: ChatMessage,
+    player: PlayerData,
+  ): Promise<PlayerData> {
     const playerContext = this.promptManager.createPlayerContext(player);
 
     // Old implementation using @google/genai

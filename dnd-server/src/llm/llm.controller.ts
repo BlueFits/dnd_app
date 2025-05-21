@@ -1,16 +1,20 @@
 import { Controller, Post, Body, Inject, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { CharacterUpdateRequest, ChatRequest } from './llm.interface';
-import { LLMService } from './llm.interface';
+import {
+  CharacterUpdateRequest,
+  ChatRequest,
+  LLMService,
+  CharacterUpdateService,
+} from './llm.interface';
 import OpenAI from 'openai';
-import { GeminiService } from '../gemini/gemini.service';
 
 @Controller('llm')
 export class LLMController {
   constructor(
     @Inject('LLM_SERVICE')
     private readonly llmService: LLMService,
-    private readonly geminiService: GeminiService,
+    @Inject('CHARACTER_UPDATE_SERVICE')
+    private readonly characterUpdateService: CharacterUpdateService,
   ) {}
 
   @Post('stream')
@@ -43,6 +47,9 @@ export class LLMController {
 
   @Post('player-update')
   async playerUpdate(@Body() request: CharacterUpdateRequest) {
-    return await this.geminiService.chat(request.messages, request.player);
+    return await this.characterUpdateService.updateCharacter(
+      request.messages,
+      request.player,
+    );
   }
 }

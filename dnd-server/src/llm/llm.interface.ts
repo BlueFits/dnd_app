@@ -26,3 +26,10 @@ export interface LLMService {
   stream(messages: ChatMessage[], player: PlayerData): Promise<Stream<any>>;
   chat(messages: ChatMessage[], player: PlayerData): Promise<string>;
 }
+
+export interface CharacterUpdateService {
+  updateCharacter(
+    messages: ChatMessage,
+    player: PlayerData,
+  ): Promise<PlayerData>;
+}
