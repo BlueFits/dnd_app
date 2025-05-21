@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { PlayerState } from './playerSlice'
+import { PlayerState, updatePlayerData } from './playerSlice'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -68,6 +68,23 @@ export const sendMessage = createAsyncThunk(
           }
         }
       }
+
+      // After getting assistant message, update player data
+      const playerUpdateResponse = await fetch('http://localhost:3000/llm/player-update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: { role: 'assistant', content: assistantMessage },
+          player: state.player
+        })
+      })
+
+      const updatedPlayer = await playerUpdateResponse.json()
+
+      // Update player state with new data while preserving existing properties
+      dispatch(updatePlayerData(updatedPlayer))
 
       // Save to JSON file in user data directory
       await window.api.appendToJsonFile(SESSION_FILE, userMessage)

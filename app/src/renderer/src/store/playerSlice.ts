@@ -1,11 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-export interface PlayerState {
+// Core player data that gets saved to JSON
+interface PlayerData {
   name: string
   level: number
   experience: number
   reputation: string
   traits: string[]
+  inventory: string[]
+}
+
+// UI-specific properties that shouldn't be saved to JSON
+interface UIState {
   tools: string[]
   environment: string
   last_action: string
@@ -14,14 +20,20 @@ export interface PlayerState {
   error: string | null
 }
 
+// Combined state type
+export type PlayerState = PlayerData & UIState
+
 const PLAYER_FILE = 'session-001.player.json'
 
 const initialState: PlayerState = {
+  // PlayerData properties
   name: '',
   level: 1,
   experience: 0,
   reputation: '',
   traits: [],
+  inventory: [],
+  // UI-specific properties
   tools: [],
   environment: '',
   last_action: '',
@@ -32,8 +44,8 @@ const initialState: PlayerState = {
 
 export const loadPlayerData = createAsyncThunk('player/loadData', async () => {
   try {
-    const playerData = await window.api.readJsonFile(PLAYER_FILE)
-    return playerData as PlayerState
+    const playerData = await window.api.readJsonFile(PLAYER_FILE) as PlayerData
+    return { ...initialState, ...playerData } as PlayerState
   } catch (error) {
     throw new Error(
       `Failed to load player data: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -43,11 +55,34 @@ export const loadPlayerData = createAsyncThunk('player/loadData', async () => {
 
 export const updatePlayerData = createAsyncThunk(
   'player/updateData',
-  async (playerData: Partial<PlayerState>, { getState }) => {
+  async (playerData: Partial<PlayerData>, { getState }) => {
     try {
+      console.log("!!!", playerData)
       const currentState = getState() as { player: PlayerState }
-      const updatedData = { ...currentState.player, ...playerData }
-      await window.api.writeJsonFile(PLAYER_FILE, updatedData)
+      // Only update the PlayerData properties, preserve UI state
+      const updatedData = {
+        ...currentState.player,
+        ...playerData,
+        // Preserve UI state
+        tools: currentState.player.tools,
+        environment: currentState.player.environment,
+        last_action: currentState.player.last_action,
+        creativity_rating: currentState.player.creativity_rating,
+        status: currentState.player.status,
+        error: currentState.player.error
+      }
+
+      // Only save PlayerData properties to JSON
+      const jsonData: PlayerData = {
+        name: updatedData.name,
+        level: updatedData.level,
+        experience: updatedData.experience,
+        reputation: updatedData.reputation,
+        traits: updatedData.traits,
+        inventory: updatedData.inventory
+      }
+
+      await window.api.writeJsonFile(PLAYER_FILE, jsonData)
       return updatedData
     } catch (error) {
       throw new Error(

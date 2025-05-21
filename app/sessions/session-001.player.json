@@ -1,8 +1,13 @@
 {
   "name": "Ilumi",
   "level": 1,
-  "experience": 0,
-  "reputation": "uknown",
-  "traits": ["creative", "strategic"],
-  "inventory": ["Greatsword"]
+  "experience": 10,
+  "reputation": "unknown",
+  "traits": [
+    "creative",
+    "strategic"
+  ],
+  "inventory": [
+    "Greatsword"
+  ]
 }
