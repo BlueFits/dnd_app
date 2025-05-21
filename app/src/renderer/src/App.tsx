@@ -57,7 +57,34 @@ const MessagesContainer = styled(Box)({
   paddingBottom: 16,
   display: 'flex',
   flexDirection: 'column',
-  gap: 16
+  gap: 16,
+  '&::-webkit-scrollbar': {
+    width: '8px',
+    transition: 'opacity 0.3s ease-in-out'
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: '4px',
+    transition: 'opacity 0.3s ease-in-out'
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: 'rgba(0, 0, 0, 0.3)'
+  },
+  '&:hover::-webkit-scrollbar-thumb': {
+    background: 'rgba(0, 0, 0, 0.2)'
+  },
+  '&::-webkit-scrollbar-thumb:vertical': {
+    minHeight: '30px'
+  },
+  '&:not(:hover)::-webkit-scrollbar-thumb': {
+    opacity: 0
+  },
+  '&:not(:hover)::-webkit-scrollbar': {
+    opacity: 0
+  }
 })
 
 const ContentContainer = styled(Box)(({ theme }) => ({
@@ -200,16 +227,17 @@ function App(): React.JSX.Element {
       setTimeout(() => {
         scrollToBottom()
       }, 500)
-    } else {
-      // Scroll to the last user message
-      if (lastMessageRef.current) {
-        lastMessageRef.current.scrollIntoView({ behavior: 'smooth' })
-        // Hide placeholder after scroll completes
-        // setTimeout(() => {
-        //   setShowStreamPlaceholder(false)
-        // }, 300)
-      }
     }
+    // else {
+    //   // Scroll to the last user message
+    //   if (lastMessageRef.current) {
+    //     lastMessageRef.current.scrollIntoView({ behavior: 'smooth' })
+    //     // Hide placeholder after scroll completes
+    //     // setTimeout(() => {
+    //     //   setShowStreamPlaceholder(false)
+    //     // }, 300)
+    //   }
+    // }
   }, [scrollToBottom, status])
 
   useEffect(() => {
