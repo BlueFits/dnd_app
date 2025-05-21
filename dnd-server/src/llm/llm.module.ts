@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OpenaiService } from '../openai/openai.service';
+import { PromptManagerService } from './prompts/prompt-manager.service';
 import { LLMController } from './llm.controller';
 // import { LLMService } from './llm.interface';
 
@@ -10,7 +11,8 @@ import { LLMController } from './llm.controller';
       provide: 'LLM_SERVICE',
       useClass: OpenaiService,
     },
+    PromptManagerService,
   ],
-  exports: ['LLM_SERVICE'],
+  exports: ['LLM_SERVICE', PromptManagerService],
 })
 export class LLMModule {}
