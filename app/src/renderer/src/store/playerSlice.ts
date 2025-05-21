@@ -59,10 +59,27 @@ export const updatePlayerData = createAsyncThunk(
     try {
       console.log("!!!", playerData)
       const currentState = getState() as { player: PlayerState }
+
+      // Handle experience accumulation and level-up logic
+      let updatedExperience = currentState.player.experience
+      let updatedLevel = currentState.player.level
+
+      if (playerData.experience !== undefined) {
+        updatedExperience += playerData.experience
+        // Check for level up (100 XP × current level)
+        const xpThreshold = 100 * updatedLevel
+        if (updatedExperience >= xpThreshold) {
+          updatedLevel += 1
+          updatedExperience = 0 // Reset experience on level up
+        }
+      }
+
       // Only update the PlayerData properties, preserve UI state
       const updatedData = {
         ...currentState.player,
         ...playerData,
+        experience: updatedExperience,
+        level: updatedLevel,
         // Preserve UI state
         tools: currentState.player.tools,
         environment: currentState.player.environment,
