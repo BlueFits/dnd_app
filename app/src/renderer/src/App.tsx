@@ -228,16 +228,6 @@ function App(): React.JSX.Element {
         scrollToBottom()
       }, 500)
     }
-    // else {
-    //   // Scroll to the last user message
-    //   if (lastMessageRef.current) {
-    //     lastMessageRef.current.scrollIntoView({ behavior: 'smooth' })
-    //     // Hide placeholder after scroll completes
-    //     // setTimeout(() => {
-    //     //   setShowStreamPlaceholder(false)
-    //     // }, 300)
-    //   }
-    // }
   }, [scrollToBottom, status])
 
   useEffect(() => {
