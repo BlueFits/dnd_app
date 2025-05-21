@@ -7,6 +7,10 @@ import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
 
+// Constants
+const SCROLL_DELAY = 500
+const BUTTON_OFFSET = 60
+
 // Styled components
 const VideoContainer = styled(Box)({
   position: 'fixed',
@@ -173,11 +177,13 @@ function App(): React.JSX.Element {
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [showStreamPlaceholder, setShowStreamPlaceholder] = useState(false)
   const [showVideo] = useState(false)
+  const [buttonPosition, setButtonPosition] = useState(0)
+
+  // Refs
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLFormElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [buttonPosition, setButtonPosition] = useState(0)
 
   const scrollToBottom = useCallback((): void => {
     if (lastMessageRef.current) {
@@ -194,53 +200,14 @@ function App(): React.JSX.Element {
     }
   }, [])
 
-  useEffect(() => {
-    const container = messagesContainerRef.current
-    if (container) {
-      container.addEventListener('scroll', handleScroll)
-      return () => container.removeEventListener('scroll', handleScroll)
-    }
-    return () => {}
-  }, [handleScroll])
-
-  useEffect(() => {
-    const updateButtonPosition = (): void => {
-      if (inputRef.current) {
-        const inputRect = inputRef.current.getBoundingClientRect()
-        setButtonPosition(inputRect.top - 60)
-      }
-    }
-
-    updateButtonPosition()
-    window.addEventListener('resize', updateButtonPosition)
-    return () => window.removeEventListener('resize', updateButtonPosition)
-  }, [])
-
-  useEffect(() => {
-    dispatch(loadMessages())
-    dispatch(loadPlayerData())
-  }, [dispatch])
-
-  useEffect(() => {
-    if (status === 'loading') {
-      setShowStreamPlaceholder(true)
-      setTimeout(() => {
-        scrollToBottom()
-      }, 500)
-    }
-  }, [scrollToBottom, status])
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (video) {
-      console.log('Video element found, attempting to play')
-      video
-        .play()
-        .then(() => console.log('Video started playing'))
-        .catch((error) => console.error('Error playing video:', error))
+  const updateButtonPosition = useCallback((): void => {
+    if (inputRef.current) {
+      const inputRect = inputRef.current.getBoundingClientRect()
+      setButtonPosition(inputRect.top - BUTTON_OFFSET)
     }
   }, [])
 
+  // Event Handlers
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     if (!inputMessage.trim() || status === 'loading') return
@@ -262,10 +229,47 @@ function App(): React.JSX.Element {
     }
   }
 
+  // Effects
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+      return () => container.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
+
+  useEffect(() => {
+    updateButtonPosition()
+    window.addEventListener('resize', updateButtonPosition)
+    return () => window.removeEventListener('resize', updateButtonPosition)
+  }, [updateButtonPosition])
+
+  useEffect(() => {
+    dispatch(loadMessages())
+    dispatch(loadPlayerData())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (status === 'loading') {
+      setShowStreamPlaceholder(true)
+      setTimeout(scrollToBottom, SCROLL_DELAY)
+    }
+  }, [scrollToBottom, status])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (video) {
+      video.play().catch((error) => console.error('Error playing video:', error))
+    }
+  }, [])
+
+  // Memoized values
   const filteredMessages = useMemo(
     () => messages.filter((message) => message.role !== 'system'),
     [messages]
   )
+
+  const isInputDisabled = status === 'loading' || !inputMessage.trim()
 
   return (
     <RootContainer>
@@ -340,7 +344,7 @@ function App(): React.JSX.Element {
                 maxRows={4}
               />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <SendButton type="submit" disabled={status === 'loading' || !inputMessage.trim()}>
+                <SendButton type="submit" disabled={isInputDisabled}>
                   <SendIcon />
                 </SendButton>
               </Box>
