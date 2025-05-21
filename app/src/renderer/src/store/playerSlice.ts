@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 export interface PlayerState {
   name: string
   level: number
+  experience: number
   reputation: string
   traits: string[]
   tools: string[]
@@ -18,6 +19,7 @@ const PLAYER_FILE = 'session-001.player.json'
 const initialState: PlayerState = {
   name: '',
   level: 1,
+  experience: 0,
   reputation: '',
   traits: [],
   tools: [],

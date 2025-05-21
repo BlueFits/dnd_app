@@ -6,6 +6,7 @@ export type ChatMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam;
 export interface PlayerData {
   name: string;
   level: number;
+  experience: number;
   reputation: string;
   traits: string[];
   inventory: string[];
@@ -13,6 +14,11 @@ export interface PlayerData {
 
 export interface ChatRequest {
   messages: ChatMessage[];
+  player: PlayerData;
+}
+
+export interface CharacterUpdateRequest {
+  messages: ChatMessage;
   player: PlayerData;
 }
 

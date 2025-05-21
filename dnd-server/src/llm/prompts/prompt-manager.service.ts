@@ -6,7 +6,7 @@ import { DND_PROMPTS, PromptConfig } from './dnd.prompts';
 export class PromptManagerService {
   private activePrompts: PromptConfig[] = DND_PROMPTS;
 
-  private createPlayerContext(player: PlayerData): PromptConfig {
+  createPlayerContext(player: PlayerData): PromptConfig {
     return {
       role: 'system',
       content: `
