@@ -28,15 +28,7 @@ export class GeminiService implements CharacterUpdateService {
       model: 'gemini-2.0-flash',
       contents: `Current player state: ${playerContext.content} Narration: ${typeof messages.content === 'string' ? messages.content : ''}`,
       config: {
-        systemInstruction: `
-          You are a DnD character manager AI.
-          The user will provide the current character object and a narrated event. Based on that, return the fully updated player object.
-          Rules:
-          - Add items, spells, XP, or notes if appropriate
-          - Level up if experience passes threshold (100 XP × current level)
-          - Only change fields that logically should be updated
-          - Always return a complete JSON object representing the new character
-      `,
+        systemInstruction: ``,
       },
     });
     const content = response.text;
