@@ -10,18 +10,11 @@ interface PlayerData {
   inventory: string[]
 }
 
-// UI-specific properties that shouldn't be saved to JSON
-interface UIState {
-  tools: string[]
-  environment: string
-  last_action: string
-  creativity_rating: number
+// Combined state type
+export type PlayerState = PlayerData & {
   status: 'idle' | 'loading' | 'failed'
   error: string | null
 }
-
-// Combined state type
-export type PlayerState = PlayerData & UIState
 
 const PLAYER_FILE = 'session-001.player.json'
 
@@ -33,11 +26,7 @@ const initialState: PlayerState = {
   reputation: '',
   traits: [],
   inventory: [],
-  // UI-specific properties
-  tools: [],
-  environment: '',
-  last_action: '',
-  creativity_rating: 0,
+  // Status properties
   status: 'idle',
   error: null
 }
@@ -80,10 +69,6 @@ export const updatePlayerData = createAsyncThunk(
         experience: updatedExperience,
         level: updatedLevel,
         // Preserve UI state
-        tools: currentState.player.tools,
-        environment: currentState.player.environment,
-        last_action: currentState.player.last_action,
-        creativity_rating: currentState.player.creativity_rating,
         status: currentState.player.status,
         error: currentState.player.error
       }

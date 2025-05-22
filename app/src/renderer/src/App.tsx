@@ -2,10 +2,11 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
 import { loadPlayerData } from './store/playerSlice'
-import { Box, IconButton, TextField, Paper, Fade, styled, Typography } from '@mui/material'
+import { Box, IconButton, TextField, Paper, Fade, styled, Button } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
+import { PlayerInfoModal } from './components/player/PlayerInfoModal'
 
 // Constants
 const SCROLL_DELAY = 500
@@ -159,14 +160,18 @@ const StreamPlaceholder = styled(Box)({
   width: '100%'
 })
 
-const PlayerInfo = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1),
-  marginBottom: theme.spacing(2),
-  borderRadius: theme.spacing(1),
-  backgroundColor: 'rgba(0, 0, 0, 0.2)',
-  display: 'flex',
-  gap: theme.spacing(2),
-  alignItems: 'center'
+const PlayerButton = styled(Button)(({ theme }) => ({
+  fontWeight: 400,
+  padding: '10px 15px',
+  borderRadius: 25,
+  background: 'transparent',
+  border: `1px solid ${theme.palette.divider}`,
+  color: 'white',
+  textTransform: 'none',
+  fontSize: '0.875rem',
+  '&:hover': {
+    backgroundColor: '#666'
+  }
 }))
 
 function App(): React.JSX.Element {
@@ -178,6 +183,7 @@ function App(): React.JSX.Element {
   const [showStreamPlaceholder, setShowStreamPlaceholder] = useState(false)
   const [showVideo] = useState(false)
   const [buttonPosition, setButtonPosition] = useState(0)
+  const [showPlayerModal, setShowPlayerModal] = useState(false)
 
   // Refs
   const lastMessageRef = useRef<HTMLDivElement>(null)
@@ -292,16 +298,6 @@ function App(): React.JSX.Element {
       <Overlay showVideo={showVideo} />
       <MessagesContainer ref={messagesContainerRef}>
         <ContentContainer>
-          {player.name && (
-            <PlayerInfo>
-              <Typography variant="subtitle1">
-                {player.name} (Level {player.level})
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {player.traits.join(', ')}
-              </Typography>
-            </PlayerInfo>
-          )}
           <MessageList
             messages={filteredMessages}
             streamingContent={streamingContent}
@@ -311,6 +307,12 @@ function App(): React.JSX.Element {
           {showStreamPlaceholder && <StreamPlaceholder />}
         </ContentContainer>
       </MessagesContainer>
+
+      <PlayerInfoModal
+        open={showPlayerModal}
+        onClose={() => setShowPlayerModal(false)}
+        player={player}
+      />
 
       <Fade in={showScrollButton}>
         <Box
@@ -344,7 +346,10 @@ function App(): React.JSX.Element {
                 multiline
                 maxRows={4}
               />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {player.name && (
+                  <PlayerButton onClick={() => setShowPlayerModal(true)}>Character</PlayerButton>
+                )}
                 <SendButton type="submit" disabled={isInputDisabled}>
                   <SendIcon />
                 </SendButton>
