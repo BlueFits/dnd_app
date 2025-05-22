@@ -12,7 +12,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MusicNoteIcon from '@mui/icons-material/MusicNote'
 import VideoSettingsIcon from '@mui/icons-material/VideoSettings'
-import ExtensionIcon from '@mui/icons-material/Extension'
+import AddIcon from '@mui/icons-material/Add'
 import { StyledDialog } from '../common/StyledDialog'
 import { useState, useEffect, useRef } from 'react'
 
@@ -31,10 +31,13 @@ interface SettingsScreenProps {
 
 // Styled Components
 const MenuButton = styled(Button)(({ theme }) => ({
+  borderRadius: '30px',
   width: '100%',
   padding: theme.spacing(2),
   marginBottom: theme.spacing(2),
-  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  // backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  border: `1px solid ${theme.palette.divider}`,
+
   color: 'white',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.1)'
@@ -96,16 +99,16 @@ const MainScreen = ({
 }): React.JSX.Element => (
   <Box>
     <MenuButton onClick={() => onNavigate('modifications')}>
-      <ExtensionIcon />
-      <Typography>Add Modifications</Typography>
+      <AddIcon />
+      <Typography variant="body2">Add Modifications</Typography>
     </MenuButton>
     <MenuButton onClick={() => onNavigate('music')}>
       <MusicNoteIcon />
-      <Typography>Music Settings</Typography>
+      <Typography variant="body2">Music Settings</Typography>
     </MenuButton>
     <MenuButton onClick={() => onNavigate('video')}>
       <VideoSettingsIcon />
-      <Typography>Video Settings</Typography>
+      <Typography variant="body2">Video Settings</Typography>
     </MenuButton>
   </Box>
 )
