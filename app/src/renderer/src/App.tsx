@@ -7,6 +7,7 @@ import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
 import { PlayerInfoModal } from './components/player/PlayerInfoModal'
+import Toolbar from './components/Toolbar'
 
 // Constants
 const SCROLL_DELAY = 500
@@ -280,6 +281,7 @@ function App(): React.JSX.Element {
 
   return (
     <RootContainer>
+      <Toolbar />
       {showVideo && (
         <VideoContainer>
           <VideoElement
