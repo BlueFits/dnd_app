@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Box, IconButton, styled } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
+import { SettingsModal } from './settings/SettingsModal'
 
 const StyledToolbar = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
@@ -24,11 +25,18 @@ const StyledToolbar = styled(Box)(({ theme }) => ({
 }))
 
 const Toolbar: React.FC = () => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+  const handleSettingsOpen = (): void => setIsSettingsOpen(true)
+  const handleSettingsClose = (): void => setIsSettingsOpen(false)
+
   return (
-    <StyledToolbar>
+    <StyledToolbar role="toolbar">
       <IconButton
         color="inherit"
         aria-label="settings"
+        tabIndex={0}
+        onClick={handleSettingsOpen}
         sx={{
           color: 'white',
           '&:hover': {
@@ -38,6 +46,8 @@ const Toolbar: React.FC = () => {
       >
         <SettingsIcon />
       </IconButton>
+      <SettingsModal open={isSettingsOpen} onClose={handleSettingsClose} />
+      {/* <SettingsModal open={true} onClose={handleSettingsClose} /> */}
     </StyledToolbar>
   )
 }

@@ -1,6 +1,7 @@
-import { Dialog, DialogTitle, DialogContent, Typography, Box, styled, IconButton } from '@mui/material'
+import { DialogTitle, DialogContent, Typography, Box, styled, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import type { PlayerState } from '../../store/playerSlice'
+import { StyledDialog } from '../common/StyledDialog'
 
 interface PlayerInfoModalProps {
   open: boolean
@@ -30,7 +31,7 @@ export const PlayerInfoModal = ({
   player
 }: PlayerInfoModalProps): React.JSX.Element => {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <StyledDialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="h5" component="div">
@@ -91,6 +92,6 @@ export const PlayerInfoModal = ({
           </Box>
         </StatBox>
       </DialogContent>
-    </Dialog>
+    </StyledDialog>
   )
 }
