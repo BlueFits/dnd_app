@@ -1,5 +1,5 @@
 import { Box, Typography, TextField } from '@mui/material'
-import SendIcon from '@mui/icons-material/Send'
+import AddIcon from '@mui/icons-material/Add'
 import { useState } from 'react'
 import { StyledButton } from '../styles'
 
@@ -46,8 +46,8 @@ export const AddModificationScreen = (): React.JSX.Element => {
           }}
         />
         <Box sx={{ marginTop: 2 }}>
-          <StyledButton variant="outlined" endIcon={<SendIcon />} onClick={handleSubmit}>
-            Send
+          <StyledButton variant="outlined" endIcon={<AddIcon />} onClick={handleSubmit}>
+            Add
           </StyledButton>
         </Box>
       </Box>
