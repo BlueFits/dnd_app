@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { PlayerState, updatePlayerData } from './playerSlice'
+import { addNotification } from './errorSlice'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -45,6 +46,10 @@ export const sendMessage = createAsyncThunk(
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
       let assistantMessage = ''
@@ -81,6 +86,10 @@ export const sendMessage = createAsyncThunk(
         })
       })
 
+      if (!playerUpdateResponse.ok) {
+        throw new Error(`Failed to update player data: ${playerUpdateResponse.status}`)
+      }
+
       const updatedPlayer = await playerUpdateResponse.json()
 
       // Update player state with new data while preserving existing properties
@@ -97,21 +106,29 @@ export const sendMessage = createAsyncThunk(
         assistantMessage: { role: 'assistant' as const, content: assistantMessage }
       }
     } catch (error) {
-      throw new Error(
-        `Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`
+      dispatch(
+        addNotification({
+          message: error instanceof Error ? error.message : 'An unexpected error occurred',
+          type: 'error'
+        })
       )
+      throw error
     }
   }
 )
 
-export const loadMessages = createAsyncThunk('chat/loadMessages', async () => {
+export const loadMessages = createAsyncThunk('chat/loadMessages', async (_, { dispatch }) => {
   try {
     const messages = await window.api.readJsonFile(SESSION_FILE)
     return messages as Message[]
   } catch (error) {
-    throw new Error(
-      `Failed to load messages: ${error instanceof Error ? error.message : 'Unknown error'}`
+    dispatch(
+      addNotification({
+        message: error instanceof Error ? error.message : 'Failed to load messages',
+        type: 'error'
+      })
     )
+    throw error
   }
 })
 

@@ -7,6 +7,7 @@ import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { MessageList } from './components/chat/MessageList'
 import { PlayerInfoModal } from './components/player/PlayerInfoModal'
+import ErrorNotification from './components/ErrorNotification'
 
 // Constants
 const SCROLL_DELAY = 500
@@ -358,6 +359,7 @@ function App(): React.JSX.Element {
           </StyledPaper>
         </ContentContainer>
       </InputContainer>
+      <ErrorNotification />
     </RootContainer>
   )
 }

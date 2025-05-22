@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { addNotification } from './errorSlice'
 
 // Core player data that gets saved to JSON
 interface PlayerData {
@@ -31,20 +32,24 @@ const initialState: PlayerState = {
   error: null
 }
 
-export const loadPlayerData = createAsyncThunk('player/loadData', async () => {
+export const loadPlayerData = createAsyncThunk('player/loadData', async (_, { dispatch }) => {
   try {
     const playerData = (await window.api.readJsonFile(PLAYER_FILE)) as PlayerData
     return { ...initialState, ...playerData } as PlayerState
   } catch (error) {
-    throw new Error(
-      `Failed to load player data: ${error instanceof Error ? error.message : 'Unknown error'}`
+    dispatch(
+      addNotification({
+        message: error instanceof Error ? error.message : 'Failed to load player data',
+        type: 'error'
+      })
     )
+    throw error
   }
 })
 
 export const updatePlayerData = createAsyncThunk(
   'player/updateData',
-  async (playerData: Partial<PlayerData>, { getState }) => {
+  async (playerData: Partial<PlayerData>, { getState, dispatch }) => {
     try {
       const currentState = getState() as { player: PlayerState }
 
@@ -86,9 +91,13 @@ export const updatePlayerData = createAsyncThunk(
       await window.api.writeJsonFile(PLAYER_FILE, jsonData)
       return updatedData
     } catch (error) {
-      throw new Error(
-        `Failed to update player data: ${error instanceof Error ? error.message : 'Unknown error'}`
+      dispatch(
+        addNotification({
+          message: error instanceof Error ? error.message : 'Failed to update player data',
+          type: 'error'
+        })
       )
+      throw error
     }
   }
 )
