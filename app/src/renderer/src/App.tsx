@@ -157,7 +157,6 @@ const StyledTextField = styled(TextField)({
 })
 
 const StreamPlaceholder = styled(Box)({
-  height: '60vh',
   width: '100%'
 })
 
@@ -181,7 +180,7 @@ function App(): React.JSX.Element {
   const player = useAppSelector((state) => state.player)
   const [inputMessage, setInputMessage] = useState('')
   const [showScrollButton, setShowScrollButton] = useState(false)
-  const [showStreamPlaceholder, setShowStreamPlaceholder] = useState(false)
+  const [placeHolderHeight, setPlaceHolderHeight] = useState('6vh')
   const [showVideo] = useState(false)
   const [buttonPosition, setButtonPosition] = useState(0)
   const [showPlayerModal, setShowPlayerModal] = useState(false)
@@ -259,7 +258,7 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     if (status === 'loading') {
-      setShowStreamPlaceholder(true)
+      setPlaceHolderHeight('60vh')
       setTimeout(scrollToBottom, SCROLL_DELAY)
     }
   }, [scrollToBottom, status])
@@ -306,7 +305,7 @@ function App(): React.JSX.Element {
             status={status}
             lastMessageRef={lastMessageRef}
           />
-          {showStreamPlaceholder && <StreamPlaceholder />}
+          <StreamPlaceholder sx={{ height: placeHolderHeight }} />
         </ContentContainer>
       </MessagesContainer>
 
