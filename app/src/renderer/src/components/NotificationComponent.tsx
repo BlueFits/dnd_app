@@ -1,22 +1,22 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Snackbar, Alert, Stack } from '@mui/material';
-import { RootState } from '../store/store';
-import { removeNotification } from '../store/errorSlice';
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { Snackbar, Alert, Stack } from '@mui/material'
+import { RootState } from '../store/store'
+import { removeNotification } from '../store/notificationSlice'
 
 const NotificationComponent: React.FC = () => {
-  const dispatch = useDispatch();
-  const notifications = useSelector((state: RootState) => state.notification.notifications);
+  const dispatch = useDispatch()
+  const notifications = useSelector((state: RootState) => state.notification.notifications)
 
   useEffect(() => {
     notifications.forEach(notification => {
       const timer = setTimeout(() => {
-        dispatch(removeNotification(notification.id));
-      }, 5000); // Auto remove after 5 seconds
+        dispatch(removeNotification(notification.id))
+      }, 5000) // Auto remove after 5 seconds
 
-      return () => clearTimeout(timer);
-    });
-  }, [notifications, dispatch]);
+      return () => clearTimeout(timer)
+    })
+  }, [notifications, dispatch])
 
   return (
     <Stack
@@ -25,7 +25,7 @@ const NotificationComponent: React.FC = () => {
         position: 'fixed',
         bottom: 16,
         right: 16,
-        zIndex: 9999,
+        zIndex: 9999
       }}
     >
       {notifications.map((notification) => (
@@ -45,7 +45,7 @@ const NotificationComponent: React.FC = () => {
         </Snackbar>
       ))}
     </Stack>
-  );
-};
+  )
+}
 
-export default NotificationComponent;
+export default NotificationComponent

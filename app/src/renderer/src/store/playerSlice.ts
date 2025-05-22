@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { addNotification } from './errorSlice'
+import { addNotification } from './notificationSlice'
 
 // Core player data that gets saved to JSON
 interface PlayerData {

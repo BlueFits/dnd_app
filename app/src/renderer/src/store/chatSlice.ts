@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { PlayerState, updatePlayerData } from './playerSlice'
-import { addNotification } from './errorSlice'
+import { addNotification } from './notificationSlice'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
