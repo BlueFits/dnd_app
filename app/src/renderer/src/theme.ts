@@ -38,7 +38,7 @@ export const theme = createTheme({
       color: '#ffffff'
     },
     body2: {
-      fontSize: '1rem', // 16px
+      fontSize: '0.9rem', // 16px
       lineHeight: 1.8,
       color: '#ffffff'
     }

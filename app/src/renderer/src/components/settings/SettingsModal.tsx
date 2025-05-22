@@ -1,130 +1,17 @@
-import {
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Box,
-  IconButton,
-  Button,
-  Slide
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { DialogTitle, DialogContent, Typography, Box, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import MusicNoteIcon from '@mui/icons-material/MusicNote'
-import VideoSettingsIcon from '@mui/icons-material/VideoSettings'
-import AddIcon from '@mui/icons-material/Add'
 import { StyledDialog } from '../common/StyledDialog'
-import { useState, useEffect, useRef } from 'react'
-
-// Types
-type SettingsScreen = 'main' | 'modifications' | 'music' | 'video'
-
-interface SettingsModalProps {
-  open: boolean
-  onClose: () => void
-}
-
-interface SettingsScreenProps {
-  screen: SettingsScreen
-  onNavigate: (screen: SettingsScreen) => void
-}
-
-// Styled Components
-const MenuButton = styled(Button)(({ theme }) => ({
-  borderRadius: '30px',
-  width: '100%',
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(2),
-  // backgroundColor: 'rgba(0, 0, 0, 0.2)',
-  border: `1px solid ${theme.palette.divider}`,
-
-  color: 'white',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-  },
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-start',
-  gap: theme.spacing(2)
-}))
-
-const ContentContainer = styled(Box)({
-  width: '100%',
-  minHeight: '300px',
-  position: 'relative',
-  overflow: 'hidden'
-})
-
-// Constants
-const ANIMATION_DURATION = 400
-
-// Components
-const ModificationsScreen = (): React.JSX.Element => (
-  <Box>
-    <Typography variant="h6" gutterBottom>
-      Modifications
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      No modifications installed
-    </Typography>
-  </Box>
-)
-
-const MusicScreen = (): React.JSX.Element => (
-  <Box>
-    <Typography variant="h6" gutterBottom>
-      Music Settings
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      Music settings coming soon
-    </Typography>
-  </Box>
-)
-
-const VideoScreen = (): React.JSX.Element => (
-  <Box>
-    <Typography variant="h6" gutterBottom>
-      Video Settings
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      Video settings coming soon
-    </Typography>
-  </Box>
-)
-
-const MainScreen = ({
-  onNavigate
-}: {
-  onNavigate: (screen: SettingsScreen) => void
-}): React.JSX.Element => (
-  <Box>
-    <MenuButton onClick={() => onNavigate('modifications')}>
-      <AddIcon />
-      <Typography variant="body2">Add Modifications</Typography>
-    </MenuButton>
-    <MenuButton onClick={() => onNavigate('music')}>
-      <MusicNoteIcon />
-      <Typography variant="body2">Music Settings</Typography>
-    </MenuButton>
-    <MenuButton onClick={() => onNavigate('video')}>
-      <VideoSettingsIcon />
-      <Typography variant="body2">Video Settings</Typography>
-    </MenuButton>
-  </Box>
-)
-
-const SettingsScreen = ({ screen, onNavigate }: SettingsScreenProps): React.JSX.Element => {
-  switch (screen) {
-    case 'modifications':
-      return <ModificationsScreen />
-    case 'music':
-      return <MusicScreen />
-    case 'video':
-      return <VideoScreen />
-    default:
-      return <MainScreen onNavigate={onNavigate} />
-  }
-}
+import { useState } from 'react'
+import type { SettingsModalProps, SettingsScreen } from './types'
+import { ContentContainer } from './styles'
+import {
+  MainScreen,
+  ModificationsScreen,
+  AddModificationScreen,
+  MusicScreen,
+  VideoScreen
+} from './screens'
 
 const ModalHeader = ({
   currentScreen,
@@ -145,7 +32,10 @@ const ModalHeader = ({
       <Typography variant="h5" component="div">
         {currentScreen === 'main'
           ? 'Settings'
-          : currentScreen.charAt(0).toUpperCase() + currentScreen.slice(1)}
+          : currentScreen
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ')}
       </Typography>
     </Box>
     <IconButton onClick={onClose} size="small">
@@ -154,70 +44,48 @@ const ModalHeader = ({
   </DialogTitle>
 )
 
+const SettingsScreen = ({
+  screen,
+  onNavigate
+}: {
+  screen: SettingsScreen
+  onNavigate: (screen: SettingsScreen) => void
+}): React.JSX.Element => {
+  switch (screen) {
+    case 'modifications':
+      return <ModificationsScreen onNavigate={onNavigate} />
+    case 'add-modification':
+      return <AddModificationScreen />
+    case 'music':
+      return <MusicScreen />
+    case 'video':
+      return <VideoScreen />
+    default:
+      return <MainScreen onNavigate={onNavigate} />
+  }
+}
+
 export const SettingsModal = ({ open, onClose }: SettingsModalProps): React.JSX.Element => {
-  // State
-  const [currentScreen, setCurrentScreen] = useState<SettingsScreen>('main')
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left')
-  const isFirstRender = useRef(true)
+  const [navigationStack, setNavigationStack] = useState<SettingsScreen[]>(['main'])
 
-  // Effects
-  useEffect(() => {
-    if (!open) {
-      const timer = setTimeout(() => {
-        setCurrentScreen('main')
-        setSlideDirection('left')
-        isFirstRender.current = true
-      }, ANIMATION_DURATION)
-      return () => clearTimeout(timer)
-    }
-    return undefined
-  }, [open])
-
-  // Handlers
   const handleNavigate = (screen: SettingsScreen): void => {
-    isFirstRender.current = false
-    setSlideDirection('left')
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentScreen(screen)
-      setIsTransitioning(false)
-    }, ANIMATION_DURATION)
+    setNavigationStack((prev) => [...prev, screen])
   }
 
   const handleBack = (): void => {
-    isFirstRender.current = false
-    setSlideDirection('right')
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setCurrentScreen('main')
-      setIsTransitioning(false)
-    }, ANIMATION_DURATION)
+    setNavigationStack((prev) => prev.slice(0, -1))
   }
 
-  // Render
+  const currentScreen = navigationStack[navigationStack.length - 1]
+
   return (
     <StyledDialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <ModalHeader currentScreen={currentScreen} onBack={handleBack} onClose={onClose} />
-      <DialogContent sx={{ overflowX: 'hidden' }}>
+      <DialogContent>
         <ContentContainer>
-          {isFirstRender.current ? (
-            <Box sx={{ mt: 2 }}>
-              <SettingsScreen screen={currentScreen} onNavigate={handleNavigate} />
-            </Box>
-          ) : (
-            <Slide
-              direction={slideDirection}
-              in={!isTransitioning}
-              mountOnEnter
-              unmountOnExit
-              timeout={ANIMATION_DURATION}
-            >
-              <Box sx={{ mt: 2 }}>
-                <SettingsScreen screen={currentScreen} onNavigate={handleNavigate} />
-              </Box>
-            </Slide>
-          )}
+          <Box sx={{ mt: 2 }}>
+            <SettingsScreen screen={currentScreen} onNavigate={handleNavigate} />
+          </Box>
         </ContentContainer>
       </DialogContent>
     </StyledDialog>
