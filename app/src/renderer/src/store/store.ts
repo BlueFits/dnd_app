@@ -1,4 +1,6 @@
 import { configureStore, Store } from '@reduxjs/toolkit'
+import { ThunkDispatch } from '@reduxjs/toolkit'
+import { AnyAction } from '@reduxjs/toolkit'
 import chatReducer from './chatSlice'
 import playerReducer from './playerSlice'
 import notificationReducer from './notificationSlice'
@@ -16,5 +18,5 @@ const store: Store = configureStore({
 })
 
 export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = ThunkDispatch<RootState, unknown, AnyAction>
 export { store }

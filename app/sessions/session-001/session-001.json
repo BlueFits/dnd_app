@@ -54,5 +54,13 @@
   {
     "role": "assistant",
     "content": "As you gracefully step away from Denna, a sense of mystery and untold stories lingers in the air between you. You offer a parting nod and a simple \"adios,\" leaving her to her own enigmatic presence in the bustling streets of Imre.\n\nThe echoes of your brief encounter with Denna weave into the tapestry of the world, adding a layer of intrigue and possibility to your journey through the captivating realm of the Kingkiller Chronicle.\n\nAs you continue your exploration of Imre, the city unfolds before you, a mosaic of sights and sounds, hinting at the countless adventures and mysteries waiting to be unraveled in this enchanting world.\n\n[AMBIENCE: civilized]\n[MUSIC: calm]"
+  },
+  {
+    "role": "user",
+    "content": "I look around"
+  },
+  {
+    "role": "assistant",
+    "content": "As you look around, the city of Imre reveals itself in all its glory. The cobblestone streets wind through the ancient buildings, their facades adorned with intricate carvings and faded hues of paint. Lanterns flicker, casting soft, warm light that dances across the stone walls.\n\nYou catch snippets of conversations from passersby, merchants hawking their wares, and the distant strum of a lute drifting from a nearby tavern. The aroma of spices and baked goods wafts through the air, adding a touch of vibrancy to the scene.\n\nImre's night sky is a canvas of twinkling stars, framed by the silhouette of tall buildings and distant spires. Shadows play amongst the alleyways, hinting at hidden corners and secret pathways waiting to be explored.\n\nIn this moment of quiet observation, the world of the Kingkiller Chronicle unfolds before you, inviting you to immerse yourself in its rich tapestry of sights, sounds, and stories.\n\n[AMBIENCE: civilized]\n[MUSIC: calm]"
   }
 ]
