@@ -17,7 +17,7 @@ export type PlayerState = PlayerData & {
   error: string | null
 }
 
-const PLAYER_FILE = 'session-001.player.json'
+const SESSION_ID = 'session-001'
 
 const initialState: PlayerState = {
   // PlayerData properties
@@ -34,7 +34,7 @@ const initialState: PlayerState = {
 
 export const loadPlayerData = createAsyncThunk('player/loadData', async (_, { dispatch }) => {
   try {
-    const playerData = (await window.api.readJsonFile(PLAYER_FILE)) as PlayerData
+    const playerData = (await window.api.readJsonFile(SESSION_ID, 'player')) as PlayerData
     return { ...initialState, ...playerData } as PlayerState
   } catch (error) {
     dispatch(
@@ -88,7 +88,7 @@ export const updatePlayerData = createAsyncThunk(
         inventory: updatedData.inventory
       }
 
-      await window.api.writeJsonFile(PLAYER_FILE, jsonData)
+      await window.api.writeJsonFile(SESSION_ID, jsonData, 'player')
       return updatedData
     } catch (error) {
       dispatch(

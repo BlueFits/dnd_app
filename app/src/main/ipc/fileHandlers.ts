@@ -10,32 +10,28 @@ interface Modification {
   content: string
 }
 
-function getSessionPath(basePath: string, filePath: string): string {
-  // Extract session ID from filename (e.g., 'session-001.player.json' -> 'session-001')
-  const sessionId = filePath.split('.')[0]
+function getSessionPath(basePath: string, sessionId: string, fileType?: string): string {
+  // Ensure sessionId doesn't already have .json extension
+  const cleanSessionId = sessionId.replace('.json', '')
 
-  // If the file is a session file (starts with 'session-'), put it in the session directory
-  if (filePath.startsWith('session-')) {
-    return is.dev && process.env.NODE_ENV === 'development'
-      ? join(basePath, 'app', 'sessions', sessionId, filePath)
-      : join(basePath, sessionId, filePath)
-  }
+  // Construct filename based on file type
+  const filename = fileType ? `${cleanSessionId}.${fileType}.json` : `${cleanSessionId}.json`
 
-  // Otherwise, keep it in the sessions root
+  // Construct the path with appropriate filename
   return is.dev && process.env.NODE_ENV === 'development'
-    ? join(basePath, 'app', 'sessions', filePath)
-    : join(basePath, filePath)
+    ? join(basePath, 'app', 'sessions', cleanSessionId, filename)
+    : join(basePath, cleanSessionId, filename)
 }
 
 export function registerFileHandlers(): void {
-  ipcMain.handle('read-json-file', async (_, filePath: string) => {
+  ipcMain.handle('read-json-file', async (_, sessionId: string, fileType?: string) => {
     try {
       const basePath =
         is.dev && process.env.NODE_ENV === 'development'
           ? join(app.getAppPath(), '..')
           : app.getPath('userData')
 
-      const fullPath = getSessionPath(basePath, filePath)
+      const fullPath = getSessionPath(basePath, sessionId, fileType)
 
       const data = await readFile(fullPath, 'utf-8')
       return JSON.parse(data)
@@ -45,17 +41,17 @@ export function registerFileHandlers(): void {
     }
   })
 
-  ipcMain.handle('write-json-file', async (_, filePath: string, data: unknown) => {
+  ipcMain.handle('write-json-file', async (_, sessionId: string, data: unknown, fileType?: string) => {
     try {
       const basePath =
         is.dev && process.env.NODE_ENV === 'development'
           ? join(app.getAppPath(), '..')
           : app.getPath('userData')
 
-      const fullPath = getSessionPath(basePath, filePath)
+      const fullPath = getSessionPath(basePath, sessionId, fileType)
 
       // Ensure the directory exists
-      const dir = fullPath.substring(0, fullPath.lastIndexOf('/'))
+      const dir = fullPath.substring(0, fullPath.lastIndexOf('\\') || fullPath.lastIndexOf('/'))
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true })
       }
@@ -69,17 +65,17 @@ export function registerFileHandlers(): void {
 
   ipcMain.handle(
     'append-to-json-file',
-    async (_, filePath: string, newData: Record<string, unknown>) => {
+    async (_, sessionId: string, newData: Record<string, unknown>, fileType?: string) => {
       try {
         const basePath =
           is.dev && process.env.NODE_ENV === 'development'
             ? join(app.getAppPath(), '..')
             : app.getPath('userData')
 
-        const fullPath = getSessionPath(basePath, filePath)
+        const fullPath = getSessionPath(basePath, sessionId, fileType)
 
         // Ensure the directory exists
-        const dir = fullPath.substring(0, fullPath.lastIndexOf('/'))
+        const dir = fullPath.substring(0, fullPath.lastIndexOf('\\') || fullPath.lastIndexOf('/'))
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true })
         }
@@ -91,7 +87,6 @@ export function registerFileHandlers(): void {
           existingData = JSON.parse(data)
         } catch {
           // If file doesn't exist or is empty, start with empty array
-          console.log('No existing file or empty file, starting fresh')
         }
 
         // Ensure existingData is an array
@@ -117,7 +112,6 @@ export function registerFileHandlers(): void {
     'save-modifications',
     async (_, sessionId: string, modifications: Modification[]) => {
       try {
-        console.log('Saving modifications:', { sessionId, modifications })
         const basePath =
           is.dev && process.env.NODE_ENV === 'development'
             ? join(app.getAppPath(), '..')
@@ -133,14 +127,11 @@ export function registerFileHandlers(): void {
           : join(basePath, sessionId)
 
         if (!fs.existsSync(sessionDir)) {
-          console.log('Creating session directory')
           fs.mkdirSync(sessionDir, { recursive: true })
         }
 
         // Save modifications
-        console.log('Writing modifications to file')
         await writeFile(modFile, JSON.stringify(modifications, null, 2), 'utf-8')
-        console.log('Modifications saved successfully')
       } catch (error) {
         console.error('Error saving modifications:', error)
         throw error

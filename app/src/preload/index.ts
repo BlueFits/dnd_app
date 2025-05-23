@@ -3,11 +3,12 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  readJsonFile: (filePath: string) => ipcRenderer.invoke('read-json-file', filePath),
-  appendToJsonFile: (filePath: string, newData: Record<string, unknown>) =>
-    ipcRenderer.invoke('append-to-json-file', filePath, newData),
-  writeJsonFile: (filePath: string, data: unknown) =>
-    ipcRenderer.invoke('write-json-file', filePath, data),
+  readJsonFile: (sessionId: string, fileType?: string) =>
+    ipcRenderer.invoke('read-json-file', sessionId, fileType),
+  appendToJsonFile: (sessionId: string, newData: Record<string, unknown>, fileType?: string) =>
+    ipcRenderer.invoke('append-to-json-file', sessionId, newData, fileType),
+  writeJsonFile: (sessionId: string, data: unknown, fileType?: string) =>
+    ipcRenderer.invoke('write-json-file', sessionId, data, fileType),
   getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
   saveModifications: (sessionId: string, modifications: unknown[]) =>
     ipcRenderer.invoke('save-modifications', sessionId, modifications),
