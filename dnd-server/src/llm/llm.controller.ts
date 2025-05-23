@@ -4,7 +4,7 @@ import {
   CharacterUpdateRequest,
   ChatRequest,
   LLMService,
-  CharacterUpdateService,
+  GameLogicService,
   ChatMessage,
 } from './llm.interface';
 import OpenAI from 'openai';
@@ -18,8 +18,8 @@ export class LLMController {
   constructor(
     @Inject('LLM_SERVICE')
     private readonly llmService: LLMService,
-    @Inject('CHARACTER_UPDATE_SERVICE')
-    private readonly characterUpdateService: CharacterUpdateService,
+    @Inject('GAME_LOGIC_SERVICE')
+    private readonly gameLogicService: GameLogicService,
   ) {}
 
   @Post('stream')
@@ -57,7 +57,7 @@ export class LLMController {
 
   @Post('player-update')
   async playerUpdate(@Body() request: CharacterUpdateRequest) {
-    return await this.characterUpdateService.updateCharacter(
+    return await this.gameLogicService.updateCharacter(
       request.messages,
       request.player,
     );
@@ -65,7 +65,7 @@ export class LLMController {
 
   @Post('tags')
   async generateTags(@Body() request: TagRequest): Promise<string> {
-    return await this.characterUpdateService.generateTags(
+    return await this.gameLogicService.generateTags(
       typeof request.message.content === 'string'
         ? request.message.content
         : '',

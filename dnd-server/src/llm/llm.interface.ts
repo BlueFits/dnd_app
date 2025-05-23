@@ -36,7 +36,7 @@ export interface LLMService {
   ): Promise<string>;
 }
 
-export interface CharacterUpdateService {
+export interface GameLogicService {
   updateCharacter(
     messages: ChatMessage,
     player: PlayerData,

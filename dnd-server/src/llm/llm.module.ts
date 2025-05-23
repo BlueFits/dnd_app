@@ -12,11 +12,11 @@ import { GeminiService } from '../gemini/gemini.service';
       useClass: OpenaiService,
     },
     {
-      provide: 'CHARACTER_UPDATE_SERVICE',
+      provide: 'GAME_LOGIC_SERVICE',
       useClass: GeminiService,
     },
     PromptManagerService,
   ],
-  exports: ['LLM_SERVICE', 'CHARACTER_UPDATE_SERVICE', PromptManagerService],
+  exports: ['LLM_SERVICE', 'GAME_LOGIC_SERVICE', PromptManagerService],
 })
 export class LLMModule {}

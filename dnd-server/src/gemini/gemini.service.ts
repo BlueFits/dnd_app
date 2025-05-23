@@ -3,12 +3,12 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import {
   ChatMessage,
   PlayerData,
-  CharacterUpdateService,
+  GameLogicService,
 } from 'src/llm/llm.interface';
 import { PromptManagerService } from '../llm/prompts/prompt-manager.service';
 
 @Injectable()
-export class GeminiService implements CharacterUpdateService {
+export class GeminiService implements GameLogicService {
   private genAI: GoogleGenerativeAI;
 
   constructor(private readonly promptManager: PromptManagerService) {
@@ -84,15 +84,17 @@ export class GeminiService implements CharacterUpdateService {
       systemInstruction: `
       You are a tag generator for a DnD game.
       CRITICAL INSTRUCTION - TAGS ARE MANDATORY:
-      You MUST respond with [AMBIENCE] and [MUSIC] tags, no exceptions.
-      These tags control the game's audio system and are required for proper functionality.
+      You MUST respond with [AMBIENCE], [MUSIC] and a conditional [CENSORED] tags, no exceptions.
+      These tags control the game'system and are required for proper functionality.
 
       Audio Management Rules:
       1. **Ambience** – represents the physical environment. Only change when the character moves to a new area.
       2. **Music** – represents the emotional tone. Only change when there's a clear shift in story tone.
+      3. **CENSORED** - Indicates if the content of the message is restricted, ONLY show this tag if relevant.
 
       REQUIRED FORMAT:
       [AMBIENCE: category_name][MUSIC: category_name]
+      contitional: [CENSORED]
 
       Valid ambience categories (ONLY use these exact categories):
       - nature
@@ -120,10 +122,9 @@ export class GeminiService implements CharacterUpdateService {
       - silence
 
       IMPORTANT RULES:
-      1. You MUST include both tags every time
-      2. If no change is needed, repeat the previous values exactly
-      3. Never modify the tag format
-      4. Never create new categories
+      1. You MUST only answer in tags
+      2. Never modify the tag format
+      3. Never create new categories
       `,
       contents: [
         {
