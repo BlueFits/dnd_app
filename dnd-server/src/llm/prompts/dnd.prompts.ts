@@ -27,6 +27,7 @@ export const DND_PROMPTS: PromptConfig[] = [
       - water
       - sky
       - silence
+      - rain
 
       Valid music categories (Do not create any other categories it is strictly these):
       - calm

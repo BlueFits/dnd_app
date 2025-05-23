@@ -16,7 +16,6 @@ class AudioService {
   }
 
   playMusic(category: MusicCategory, volume: number): void {
-
     console.log("attempting to play music")
 
     if (this.musicAudio) {
@@ -27,11 +26,15 @@ class AudioService {
     const trackNumber = this.formatTrackNumber(this.currentMusicTrack)
     this.musicAudio = new Audio(`/sounds/music/${category}/${trackNumber}.mp3`)
     this.musicAudio.volume = volume
-    this.musicAudio.loop = false // We'll handle looping manually
+    this.musicAudio.loop = false
 
     this.musicAudio.onended = () => {
-      this.currentMusicTrack = this.getNextTrackNumber(this.currentMusicTrack)
-      this.playMusic(category, volume)
+      if (this.currentMusicTrack < this.MAX_TRACKS) {
+        this.currentMusicTrack = this.getNextTrackNumber(this.currentMusicTrack)
+        this.playMusic(category, volume)
+      } else {
+        this.stopMusic()
+      }
     }
 
     this.musicAudio.play().catch(console.error)
@@ -46,11 +49,15 @@ class AudioService {
     const trackNumber = this.formatTrackNumber(this.currentAmbienceTrack)
     this.ambienceAudio = new Audio(`/sounds/ambience/${category}/${trackNumber}.mp3`)
     this.ambienceAudio.volume = volume
-    this.ambienceAudio.loop = false // We'll handle looping manually
+    this.ambienceAudio.loop = false
 
     this.ambienceAudio.onended = () => {
-      this.currentAmbienceTrack = this.getNextTrackNumber(this.currentAmbienceTrack)
-      this.playAmbience(category, volume)
+      if (this.currentAmbienceTrack < this.MAX_TRACKS) {
+        this.currentAmbienceTrack = this.getNextTrackNumber(this.currentAmbienceTrack)
+        this.playAmbience(category, volume)
+      } else {
+        this.stopAmbience()
+      }
     }
 
     this.ambienceAudio.play().catch(console.error)
