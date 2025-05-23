@@ -2,7 +2,7 @@ import { DialogTitle, DialogContent, Typography, Box, IconButton } from '@mui/ma
 import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { StyledDialog } from '../common/StyledDialog'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { SettingsModalProps, SettingsScreen } from './types'
 import { ContentContainer } from './styles'
 import {
@@ -82,6 +82,15 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps): React.JSX.
   const handleBack = (): void => {
     setNavigationStack((prev) => prev.slice(0, -1))
   }
+
+  // Reset navigation stack when modal closes
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setNavigationStack(['main'])
+      }, 300)
+    }
+  }, [open])
 
   const currentScreen = navigationStack[navigationStack.length - 1]
 
