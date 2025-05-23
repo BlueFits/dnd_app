@@ -43,6 +43,9 @@ export const modificationsSlice = createSlice({
   reducers: {
     setSessionId: (state, action: PayloadAction<string>) => {
       state.sessionId = action.payload
+    },
+    updateModification: (state, action: PayloadAction<{ index: number; content: string }>) => {
+      state.modifications[action.payload.index].content = action.payload.content
     }
   },
   extraReducers: (builder) => {
@@ -72,7 +75,7 @@ export const modificationsSlice = createSlice({
   }
 })
 
-export const { setSessionId } = modificationsSlice.actions
+export const { setSessionId, updateModification } = modificationsSlice.actions
 
 export const selectModifications = (state: RootState): Modification[] => state.modifications.modifications
 export const selectSessionId = (state: RootState): string | null => state.modifications.sessionId
