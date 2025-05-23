@@ -41,5 +41,5 @@ export interface CharacterUpdateService {
     messages: ChatMessage,
     player: PlayerData,
   ): Promise<PlayerData>;
-  generateAudioTags(narration: string): Promise<string>;
+  generateTags(narration: string): Promise<string>;
 }

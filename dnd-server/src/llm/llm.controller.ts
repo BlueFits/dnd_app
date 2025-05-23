@@ -9,7 +9,7 @@ import {
 } from './llm.interface';
 import OpenAI from 'openai';
 
-interface AudioTagRequest {
+interface TagRequest {
   message: ChatMessage;
 }
 
@@ -63,9 +63,9 @@ export class LLMController {
     );
   }
 
-  @Post('audio-tags')
-  async generateAudioTags(@Body() request: AudioTagRequest): Promise<string> {
-    return await this.characterUpdateService.generateAudioTags(
+  @Post('tags')
+  async generateTags(@Body() request: TagRequest): Promise<string> {
+    return await this.characterUpdateService.generateTags(
       typeof request.message.content === 'string'
         ? request.message.content
         : '',

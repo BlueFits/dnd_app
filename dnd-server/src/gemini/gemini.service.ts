@@ -75,15 +75,15 @@ export class GeminiService implements CharacterUpdateService {
     return JSON.parse(clean) as PlayerData;
   }
 
-  async generateAudioTags(narration: string): Promise<string> {
+  async generateTags(narration: string): Promise<string> {
     const model = this.genAI.getGenerativeModel({
       model: 'gemini-2.0-flash-lite',
     });
 
     const result = await model.generateContent({
       systemInstruction: `
-      You are an audio tag generator for a DnD game.
-      CRITICAL INSTRUCTION - AUDIO TAGS ARE MANDATORY:
+      You are a tag generator for a DnD game.
+      CRITICAL INSTRUCTION - TAGS ARE MANDATORY:
       You MUST respond with [AMBIENCE] and [MUSIC] tags, no exceptions.
       These tags control the game's audio system and are required for proper functionality.
 

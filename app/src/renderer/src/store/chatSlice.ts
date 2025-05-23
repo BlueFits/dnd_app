@@ -7,6 +7,7 @@ import { chatService } from '../services/chatService'
 import { storageService } from '../services/storageService'
 import { setMusic, setAmbience } from './musicSlice'
 import { audioService } from '../services/audioService'
+import { tagService } from '../services/tagService'
 
 // Helper function to remove audio tags from message content
 const removeAudioTags = (content: string): string => {
@@ -65,21 +66,24 @@ export const sendMessage = createAsyncThunk(
         }
       }
 
-      // Get audio tags from the audio service
-      const { music, ambience } = await audioService.generateAudioTags(assistantMessage)
+      // Get tags from the tag service
+      const tags = await tagService.generateTags(assistantMessage)
 
-      console.log('parsing', music, ambience)
+      // Handle audio tags if present
+      if (tags.audio) {
+        const { music, ambience } = tags.audio
 
-      // Handle music - only change if a new music tag is provided
-      if (music && music !== state.music.currentMusic) {
-        dispatch(setMusic(music))
-        audioService.playMusic(music, state.music.volume.music)
-      }
+        // Handle music - only change if a new music tag is provided
+        if (music && music !== state.music.currentMusic) {
+          dispatch(setMusic(music))
+          audioService.playMusic(music, state.music.volume.music)
+        }
 
-      // Handle ambience - only change if a new ambience tag is provided
-      if (ambience && ambience !== state.music.currentAmbience) {
-        dispatch(setAmbience(ambience))
-        audioService.playAmbience(ambience, state.music.volume.ambience)
+        // Handle ambience - only change if a new ambience tag is provided
+        if (ambience && ambience !== state.music.currentAmbience) {
+          dispatch(setAmbience(ambience))
+          audioService.playAmbience(ambience, state.music.volume.ambience)
+        }
       }
 
       // Clean the message content before storing
