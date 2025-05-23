@@ -10,20 +10,32 @@ interface Modification {
   content: string
 }
 
+function getSessionPath(basePath: string, filePath: string): string {
+  // Extract session ID from filename (e.g., 'session-001.player.json' -> 'session-001')
+  const sessionId = filePath.split('.')[0]
+
+  // If the file is a session file (starts with 'session-'), put it in the session directory
+  if (filePath.startsWith('session-')) {
+    return is.dev && process.env.NODE_ENV === 'development'
+      ? join(basePath, 'app', 'sessions', sessionId, filePath)
+      : join(basePath, sessionId, filePath)
+  }
+
+  // Otherwise, keep it in the sessions root
+  return is.dev && process.env.NODE_ENV === 'development'
+    ? join(basePath, 'app', 'sessions', filePath)
+    : join(basePath, filePath)
+}
+
 export function registerFileHandlers(): void {
   ipcMain.handle('read-json-file', async (_, filePath: string) => {
     try {
-      // In development, use the project's sessions folder
-      // In production (npm start or built app), use userData
       const basePath =
         is.dev && process.env.NODE_ENV === 'development'
           ? join(app.getAppPath(), '..')
           : app.getPath('userData')
 
-      const fullPath =
-        is.dev && process.env.NODE_ENV === 'development'
-          ? join(basePath, 'app', 'sessions', filePath)
-          : join(basePath, filePath)
+      const fullPath = getSessionPath(basePath, filePath)
 
       const data = await readFile(fullPath, 'utf-8')
       return JSON.parse(data)
@@ -40,10 +52,13 @@ export function registerFileHandlers(): void {
           ? join(app.getAppPath(), '..')
           : app.getPath('userData')
 
-      const fullPath =
-        is.dev && process.env.NODE_ENV === 'development'
-          ? join(basePath, 'app', 'sessions', filePath)
-          : join(basePath, filePath)
+      const fullPath = getSessionPath(basePath, filePath)
+
+      // Ensure the directory exists
+      const dir = fullPath.substring(0, fullPath.lastIndexOf('/'))
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
 
       await writeFile(fullPath, JSON.stringify(data, null, 2), 'utf-8')
     } catch (error) {
@@ -56,17 +71,18 @@ export function registerFileHandlers(): void {
     'append-to-json-file',
     async (_, filePath: string, newData: Record<string, unknown>) => {
       try {
-        // In development, use the project's sessions folder
-        // In production (npm start or built app), use userData
         const basePath =
           is.dev && process.env.NODE_ENV === 'development'
             ? join(app.getAppPath(), '..')
             : app.getPath('userData')
 
-        const fullPath =
-          is.dev && process.env.NODE_ENV === 'development'
-            ? join(basePath, 'app', 'sessions', filePath)
-            : join(basePath, filePath)
+        const fullPath = getSessionPath(basePath, filePath)
+
+        // Ensure the directory exists
+        const dir = fullPath.substring(0, fullPath.lastIndexOf('/'))
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true })
+        }
 
         // Read existing data
         let existingData: Record<string, unknown>[] = []
@@ -107,14 +123,15 @@ export function registerFileHandlers(): void {
             ? join(app.getAppPath(), '..')
             : app.getPath('userData')
 
-        console.log('Base path:', basePath)
-        const sessionDir = join(basePath, 'app', 'sessions', sessionId)
-        const modFile = join(sessionDir, 'session-001.modification.json')
-
-        console.log('Session dir:', sessionDir)
-        console.log('Mod file:', modFile)
+        const modFile = is.dev && process.env.NODE_ENV === 'development'
+          ? join(basePath, 'app', 'sessions', sessionId, `${sessionId}.modification.json`)
+          : join(basePath, sessionId, `${sessionId}.modification.json`)
 
         // Ensure sessions directory exists
+        const sessionDir = is.dev && process.env.NODE_ENV === 'development'
+          ? join(basePath, 'app', 'sessions', sessionId)
+          : join(basePath, sessionId)
+
         if (!fs.existsSync(sessionDir)) {
           console.log('Creating session directory')
           fs.mkdirSync(sessionDir, { recursive: true })
@@ -138,7 +155,9 @@ export function registerFileHandlers(): void {
           ? join(app.getAppPath(), '..')
           : app.getPath('userData')
 
-      const modFile = join(basePath, 'app', 'sessions', sessionId, 'session-001.modification.json')
+      const modFile = is.dev && process.env.NODE_ENV === 'development'
+        ? join(basePath, 'app', 'sessions', sessionId, `${sessionId}.modification.json`)
+        : join(basePath, sessionId, `${sessionId}.modification.json`)
 
       const data = await readFile(modFile, 'utf-8')
       return JSON.parse(data)
