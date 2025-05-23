@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { addNotification } from './notificationSlice'
+import { storageService } from '../services/storageService'
 
 // Core player data that gets saved to JSON
-interface PlayerData {
+export interface PlayerData {
   name: string
   level: number
   experience: number
@@ -16,8 +17,6 @@ export type PlayerState = PlayerData & {
   status: 'idle' | 'loading' | 'failed'
   error: string | null
 }
-
-const SESSION_ID = 'session-001'
 
 const initialState: PlayerState = {
   // PlayerData properties
@@ -34,7 +33,7 @@ const initialState: PlayerState = {
 
 export const loadPlayerData = createAsyncThunk('player/loadData', async (_, { dispatch }) => {
   try {
-    const playerData = (await window.api.readJsonFile(SESSION_ID, 'player')) as PlayerData
+    const playerData = await storageService.readPlayerData()
     return { ...initialState, ...playerData } as PlayerState
   } catch (error) {
     dispatch(
@@ -88,7 +87,7 @@ export const updatePlayerData = createAsyncThunk(
         inventory: updatedData.inventory
       }
 
-      await window.api.writeJsonFile(SESSION_ID, jsonData, 'player')
+      await storageService.writePlayerData(jsonData)
       return updatedData
     } catch (error) {
       dispatch(

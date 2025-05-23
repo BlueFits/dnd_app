@@ -2,11 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { updatePlayerData } from './playerSlice'
 import { addNotification } from './notificationSlice'
 import { RootState } from './store'
-
-interface Message {
-  role: 'user' | 'assistant' | 'system'
-  content: string
-}
+import { Message } from '../types/chat'
+import { chatService } from '../services/chatService'
+import { storageService } from '../services/storageService'
 
 export interface ChatState {
   messages: Message[]
@@ -14,8 +12,6 @@ export interface ChatState {
   error: string | null
   streamingContent: string
 }
-
-const SESSION_ID = 'session-001'
 
 const initialState: ChatState = {
   messages: [],
@@ -36,29 +32,13 @@ export const sendMessage = createAsyncThunk(
     const messages = [...state.chat.messages, userMessage]
 
     try {
-      const response = await fetch('http://localhost:3000/llm/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages,
-          player: state.player,
-          modifications: state.modifications.modifications
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const reader = response.body?.getReader()
+      const reader = await chatService.sendMessage(
+        messages,
+        state.player,
+        state.modifications.modifications
+      )
       const decoder = new TextDecoder()
       let assistantMessage = ''
-
-      if (!reader) {
-        throw new Error('Failed to get response reader')
-      }
 
       while (true) {
         const { done, value } = await reader.read()
@@ -77,30 +57,18 @@ export const sendMessage = createAsyncThunk(
       }
 
       // After getting assistant message, update player data
-      const playerUpdateResponse = await fetch('http://localhost:3000/llm/player-update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: { role: 'assistant', content: assistantMessage },
-          player: state.player,
-          modifications: state.modifications.modifications
-        })
-      })
+      const updatedPlayer = await chatService.updatePlayerData(
+        { role: 'assistant', content: assistantMessage },
+        state.player,
+        state.modifications.modifications
+      )
 
-      if (!playerUpdateResponse.ok) {
-        throw new Error(`Failed to update player data: ${playerUpdateResponse.status}`)
-      }
-
-      const updatedPlayer = await playerUpdateResponse.json()
-
-      // Update player state with new data while preserving existing properties
+      // Update player state with new data
       dispatch(updatePlayerData(updatedPlayer))
 
-      // Save to JSON file in user data directory
-      await window.api.appendToJsonFile(SESSION_ID, userMessage)
-      await window.api.appendToJsonFile(SESSION_ID, {
+      // Save messages to storage
+      await storageService.appendToJsonFile(userMessage)
+      await storageService.appendToJsonFile({
         role: 'assistant',
         content: assistantMessage
       })
@@ -122,8 +90,7 @@ export const sendMessage = createAsyncThunk(
 
 export const loadMessages = createAsyncThunk('chat/loadMessages', async (_, { dispatch }) => {
   try {
-    const messages = await window.api.readJsonFile(SESSION_ID)
-    return messages as Message[]
+    return await storageService.readJsonFile()
   } catch (error) {
     dispatch(
       addNotification({

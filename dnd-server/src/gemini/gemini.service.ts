@@ -66,7 +66,6 @@ export class GeminiService implements CharacterUpdateService {
     });
     const response = result.response;
     const content = response.candidates[0].content.parts[0].text;
-    console.log('!!!', content);
 
     const clean = content
       .replace(/```json\n?/, '')

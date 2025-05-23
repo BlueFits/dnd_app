@@ -19,9 +19,6 @@ export class LLMController {
 
   @Post('stream')
   async stream(@Body() request: ChatRequest, @Res() res: Response) {
-
-    console.log("!!!", request)
-
     const stream = await this.llmService.stream(
       request.messages,
       request.player,
