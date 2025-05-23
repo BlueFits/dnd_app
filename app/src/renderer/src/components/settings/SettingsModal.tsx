@@ -55,7 +55,7 @@ const SettingsScreen = ({
     case 'modifications':
       return <ModificationsScreen onNavigate={onNavigate} />
     case 'add-modification':
-      return <AddModificationScreen />
+      return <AddModificationScreen onNavigate={onNavigate} />
     case 'music':
       return <MusicScreen />
     case 'video':

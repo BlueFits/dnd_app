@@ -17,10 +17,12 @@ export class OpenaiService implements LLMService {
   async stream(
     messages: ChatMessage[],
     player: PlayerData,
+    modifications?: ChatMessage[],
   ): Promise<Stream<OpenAI.Chat.Completions.ChatCompletionChunk>> {
     const messagesWithPrompts = this.promptManager.applyPrompts(
       messages,
       player,
+      modifications,
     );
 
     const stream = await this.openai.chat.completions.create({
@@ -31,10 +33,15 @@ export class OpenaiService implements LLMService {
     return stream;
   }
 
-  async chat(messages: ChatMessage[], player: PlayerData): Promise<string> {
+  async chat(
+    messages: ChatMessage[],
+    player: PlayerData,
+    modifications?: ChatMessage[],
+  ): Promise<string> {
     const messagesWithPrompts = this.promptManager.applyPrompts(
       messages,
       player,
+      modifications,
     );
 
     const response = await this.openai.chat.completions.create({

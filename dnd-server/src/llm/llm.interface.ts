@@ -15,6 +15,7 @@ export interface PlayerData {
 export interface ChatRequest {
   messages: ChatMessage[];
   player: PlayerData;
+  modifications?: { role: 'system'; content: string }[];
 }
 
 export interface CharacterUpdateRequest {
@@ -23,8 +24,16 @@ export interface CharacterUpdateRequest {
 }
 
 export interface LLMService {
-  stream(messages: ChatMessage[], player: PlayerData): Promise<Stream<any>>;
-  chat(messages: ChatMessage[], player: PlayerData): Promise<string>;
+  stream(
+    messages: ChatMessage[],
+    player: PlayerData,
+    modifications?: { role: 'system'; content: string }[],
+  ): Promise<Stream<any>>;
+  chat(
+    messages: ChatMessage[],
+    player: PlayerData,
+    modifications?: { role: 'system'; content: string }[],
+  ): Promise<string>;
 }
 
 export interface CharacterUpdateService {

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { PlayerState, updatePlayerData } from './playerSlice'
+import { updatePlayerData } from './playerSlice'
 import { addNotification } from './notificationSlice'
+import { RootState } from './store'
 
 interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -26,7 +27,7 @@ const initialState: ChatState = {
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async (message: string, { getState, dispatch }) => {
-    const state = getState() as { chat: ChatState; player: PlayerState }
+    const state = getState() as RootState
     const userMessage = { role: 'user' as const, content: message }
 
     // Add user message to state immediately
@@ -42,7 +43,8 @@ export const sendMessage = createAsyncThunk(
         },
         body: JSON.stringify({
           messages,
-          player: state.player
+          player: state.player,
+          modifications: state.modifications.modifications
         })
       })
 
@@ -82,7 +84,8 @@ export const sendMessage = createAsyncThunk(
         },
         body: JSON.stringify({
           messages: { role: 'assistant', content: assistantMessage },
-          player: state.player
+          player: state.player,
+          modifications: state.modifications.modifications
         })
       })
 

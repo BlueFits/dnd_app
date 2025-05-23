@@ -19,9 +19,13 @@ export class LLMController {
 
   @Post('stream')
   async stream(@Body() request: ChatRequest, @Res() res: Response) {
+
+    console.log("!!!", request)
+
     const stream = await this.llmService.stream(
       request.messages,
       request.player,
+      request.modifications,
     );
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -42,7 +46,11 @@ export class LLMController {
 
   @Post('chat')
   async chat(@Body() request: ChatRequest) {
-    return this.llmService.chat(request.messages, request.player);
+    return this.llmService.chat(
+      request.messages,
+      request.player,
+      request.modifications,
+    );
   }
 
   @Post('player-update')

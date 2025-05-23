@@ -25,9 +25,14 @@ export class PromptManagerService {
    * Applies configured prompts to the message array
    * @param messages Original messages array
    * @param player Current player data
+   * @param modifications Array of system modifications to apply
    * @returns New messages array with prompts prepended
    */
-  applyPrompts(messages: ChatMessage[], player?: PlayerData): ChatMessage[] {
+  applyPrompts(
+    messages: ChatMessage[],
+    player?: PlayerData,
+    modifications?: ChatMessage[]
+  ): ChatMessage[] {
     // Sort prompts by priority (highest first)
     const sortedPrompts = [...this.activePrompts].sort(
       (a, b) => b.priority - a.priority,
@@ -39,10 +44,15 @@ export class PromptManagerService {
       content: prompt.content,
     }));
 
+    // Add modifications if available
+    const messagesWithMods = modifications
+      ? [...systemMessages, ...modifications]
+      : systemMessages;
+
     // Add player context if available
     const messagesWithPrompts = player
-      ? [this.createPlayerContext(player), ...systemMessages, ...messages]
-      : [...systemMessages, ...messages];
+      ? [this.createPlayerContext(player), ...messagesWithMods, ...messages]
+      : [...messagesWithMods, ...messages];
 
     return messagesWithPrompts;
   }

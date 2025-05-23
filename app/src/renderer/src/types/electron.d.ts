@@ -1,14 +1,15 @@
-interface Window {
-  electron: {
-    ipcRenderer: {
-      send: (channel: string, ...args: unknown[]) => void
-      on: (channel: string, func: (...args: unknown[]) => void) => void
-      once: (channel: string, func: (...args: unknown[]) => void) => void
+import { ElectronAPI } from '@electron-toolkit/preload'
+
+declare global {
+  interface Window {
+    electron: ElectronAPI
+    api: {
+      readJsonFile: (filePath: string) => Promise<unknown>
+      appendToJsonFile: (filePath: string, newData: Record<string, unknown>) => Promise<unknown>
+      writeJsonFile: (filePath: string, data: unknown) => Promise<void>
+      getUserDataPath: () => Promise<string>
+      saveModifications: (sessionId: string, modifications: unknown[]) => Promise<void>
+      loadModifications: (sessionId: string) => Promise<unknown[]>
     }
-  }
-  api: {
-    appendToJsonFile(arg0: string, newMessage: { role: string; content: string }): unknown
-    readJsonFile: (filePath: string) => Promise<unknown>
-    writeJsonFile: (filePath: string, data: unknown) => Promise<void>
   }
 }

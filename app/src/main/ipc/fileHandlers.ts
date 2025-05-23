@@ -3,6 +3,12 @@ import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { app } from 'electron'
 import { is } from '@electron-toolkit/utils'
+import fs from 'fs'
+
+interface Modification {
+  role: 'system'
+  content: string
+}
 
 export function registerFileHandlers(): void {
   ipcMain.handle('read-json-file', async (_, filePath: string) => {
@@ -89,4 +95,56 @@ export function registerFileHandlers(): void {
       }
     }
   )
+
+  // Modification handlers
+  ipcMain.handle(
+    'save-modifications',
+    async (_, sessionId: string, modifications: Modification[]) => {
+      try {
+        console.log('Saving modifications:', { sessionId, modifications })
+        const basePath =
+          is.dev && process.env.NODE_ENV === 'development'
+            ? join(app.getAppPath(), '..')
+            : app.getPath('userData')
+
+        console.log('Base path:', basePath)
+        const sessionDir = join(basePath, 'app', 'sessions', sessionId)
+        const modFile = join(sessionDir, 'session-001.modification.json')
+
+        console.log('Session dir:', sessionDir)
+        console.log('Mod file:', modFile)
+
+        // Ensure sessions directory exists
+        if (!fs.existsSync(sessionDir)) {
+          console.log('Creating session directory')
+          fs.mkdirSync(sessionDir, { recursive: true })
+        }
+
+        // Save modifications
+        console.log('Writing modifications to file')
+        await writeFile(modFile, JSON.stringify(modifications, null, 2), 'utf-8')
+        console.log('Modifications saved successfully')
+      } catch (error) {
+        console.error('Error saving modifications:', error)
+        throw error
+      }
+    }
+  )
+
+  ipcMain.handle('load-modifications', async (_, sessionId: string) => {
+    try {
+      const basePath =
+        is.dev && process.env.NODE_ENV === 'development'
+          ? join(app.getAppPath(), '..')
+          : app.getPath('userData')
+
+      const modFile = join(basePath, 'app', 'sessions', sessionId, 'session-001.modification.json')
+
+      const data = await readFile(modFile, 'utf-8')
+      return JSON.parse(data)
+    } catch {
+      // If file doesn't exist or is invalid, return empty array
+      return []
+    }
+  })
 }

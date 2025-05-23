@@ -8,7 +8,11 @@ const api = {
     ipcRenderer.invoke('append-to-json-file', filePath, newData),
   writeJsonFile: (filePath: string, data: unknown) =>
     ipcRenderer.invoke('write-json-file', filePath, data),
-  getUserDataPath: () => ipcRenderer.invoke('get-user-data-path')
+  getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
+  saveModifications: (sessionId: string, modifications: unknown[]) =>
+    ipcRenderer.invoke('save-modifications', sessionId, modifications),
+  loadModifications: (sessionId: string) =>
+    ipcRenderer.invoke('load-modifications', sessionId)
 } as const
 
 // Use `contextBridge` APIs to expose Electron APIs to

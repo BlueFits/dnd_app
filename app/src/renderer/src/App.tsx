@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { sendMessage, loadMessages } from './store/chatSlice'
 import { loadPlayerData } from './store/playerSlice'
+import { setSessionId, loadModificationsAsync } from './store/modificationsSlice'
 import { Box, IconButton, TextField, Paper, Fade, styled, Button } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -252,6 +253,9 @@ function App(): React.JSX.Element {
   }, [updateButtonPosition])
 
   useEffect(() => {
+    const sessionId = 'session-001'
+    dispatch(setSessionId(sessionId))
+    dispatch(loadModificationsAsync(sessionId))
     dispatch(loadMessages())
     dispatch(loadPlayerData())
   }, [dispatch])
