@@ -5,7 +5,6 @@ import { RootState } from './store'
 import { Message } from '../types/chat'
 import { chatService } from '../services/chatService'
 import { storageService } from '../services/storageService'
-import { parseAudioTags } from '../utils/audioParser'
 import { setMusic, setAmbience } from './musicSlice'
 import { audioService } from '../services/audioService'
 
@@ -66,10 +65,10 @@ export const sendMessage = createAsyncThunk(
         }
       }
 
-      // Parse and handle audio tags
-      const { music, ambience } = parseAudioTags(assistantMessage)
+      // Get audio tags from the audio service
+      const { music, ambience } = await audioService.generateAudioTags(assistantMessage)
 
-      console.log("parsing", music, ambience)
+      console.log('parsing', music, ambience)
 
       // Handle music - only change if a new music tag is provided
       if (music && music !== state.music.currentMusic) {

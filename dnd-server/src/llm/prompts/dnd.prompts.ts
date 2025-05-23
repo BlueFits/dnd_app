@@ -7,62 +7,6 @@ export interface PromptConfig {
 export const DND_PROMPTS: PromptConfig[] = [
   {
     role: 'system',
-    content: `
-      CRITICAL INSTRUCTION - AUDIO TAGS ARE MANDATORY:
-      You MUST include both [AMBIENCE] and [MUSIC] tags at the end of EVERY response, no exceptions.
-      These tags control the game's audio system and are required for proper functionality.
-
-      Audio Management Rules:
-      1. **Ambience** – represents the physical environment. Only change when the character moves to a new area.
-      2. **Music** – represents the emotional tone. Only change when there's a clear shift in story tone.
-
-      REQUIRED FORMAT (must be at the very end of EVERY response):
-      [AMBIENCE: category_name]
-      [MUSIC: category_name]
-
-      Valid ambience categories (ONLY use these exact categories):
-      - nature
-      - civilized
-      - ruin
-      - indoor
-      - danger
-      - wild
-      - mystic
-      - water
-      - sky
-      - silence
-      - rain
-
-      Valid music categories (ONLY use these exact categories):
-      - calm
-      - suspense
-      - fear
-      - action
-      - heroic
-      - sorrow
-      - hope
-      - dark
-      - wonder
-      - silence
-
-      IMPORTANT RULES:
-      1. These tags MUST be the last thing in your response
-      2. You MUST include both tags every time
-      3. If no change is needed, repeat the previous values exactly
-      4. Never explain or discuss the tags
-      5. Never modify the tag format
-      6. Never create new categories
-      7. Never skip the tags, even in error messages or system responses
-
-      Example of correct tag placement:
-      "The forest grows quiet as night falls..."
-      [AMBIENCE: nature]
-      [MUSIC: calm]
-    `,
-    priority: 2,
-  },
-  {
-    role: 'system',
     content: `You are the Dungeon Master of a DnD campaign.
     Your role is to narrate the world and guide players through their adventure.
     You must:

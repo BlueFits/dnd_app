@@ -5,8 +5,13 @@ import {
   ChatRequest,
   LLMService,
   CharacterUpdateService,
+  ChatMessage,
 } from './llm.interface';
 import OpenAI from 'openai';
+
+interface AudioTagRequest {
+  message: ChatMessage;
+}
 
 @Controller('llm')
 export class LLMController {
@@ -55,6 +60,15 @@ export class LLMController {
     return await this.characterUpdateService.updateCharacter(
       request.messages,
       request.player,
+    );
+  }
+
+  @Post('audio-tags')
+  async generateAudioTags(@Body() request: AudioTagRequest): Promise<string> {
+    return await this.characterUpdateService.generateAudioTags(
+      typeof request.message.content === 'string'
+        ? request.message.content
+        : '',
     );
   }
 }

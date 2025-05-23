@@ -1,4 +1,5 @@
 import { MusicCategory, AmbienceCategory } from '../types/audio'
+import { parseAudioTags } from '../utils/audioParser'
 
 class AudioService {
   private musicAudio: HTMLAudioElement | null = null
@@ -91,6 +92,28 @@ class AudioService {
       this.ambienceAudio = null
     }
     this.currentAmbienceTrack = 1
+  }
+
+  async generateAudioTags(message: string): Promise<{ music: string | null; ambience: string | null }> {
+    const response = await fetch('http://localhost:3000/llm/audio-tags', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: {
+          role: 'assistant',
+          content: message
+        }
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to generate audio tags')
+    }
+
+    const content = await response.text()
+    return parseAudioTags(content)
   }
 }
 
