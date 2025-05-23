@@ -7,11 +7,18 @@ import { PromptManagerService } from '../llm/prompts/prompt-manager.service';
 @Injectable()
 export class OpenaiService implements LLMService {
   private openai: OpenAI;
+  private readonly model: OpenAI.Chat.ChatCompletionCreateParams['model'];
 
   constructor(private readonly promptManager: PromptManagerService) {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+    this.model =
+      process.env.NODE_ENV === 'production'
+        ? ((process.env.OPENAI_MODEL_PROD ||
+            'gpt-4o') as OpenAI.Chat.ChatCompletionCreateParams['model'])
+        : ((process.env.OPENAI_MODEL_DEV ||
+            'gpt-3.5-turbo') as OpenAI.Chat.ChatCompletionCreateParams['model']);
   }
 
   async stream(
@@ -26,7 +33,7 @@ export class OpenaiService implements LLMService {
     );
 
     const stream = await this.openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: this.model,
       messages: messagesWithPrompts,
       stream: true,
     });
@@ -45,7 +52,7 @@ export class OpenaiService implements LLMService {
     );
 
     const response = await this.openai.chat.completions.create({
-      model: 'gpt-4',
+      model: this.model,
       messages: messagesWithPrompts,
     });
     return response.choices[0]?.message?.content || '';

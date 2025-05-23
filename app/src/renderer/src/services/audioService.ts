@@ -16,7 +16,7 @@ class AudioService {
   }
 
   playMusic(category: MusicCategory, volume: number): void {
-    console.log("attempting to play music")
+    console.log(`attempting to play ${category}`)
 
     if (this.musicAudio) {
       this.musicAudio.pause()
@@ -41,6 +41,8 @@ class AudioService {
   }
 
   playAmbience(category: AmbienceCategory, volume: number): void {
+    console.log(`attempting to play ${category}`)
+
     if (this.ambienceAudio) {
       this.ambienceAudio.pause()
       this.ambienceAudio = null

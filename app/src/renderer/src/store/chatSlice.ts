@@ -6,7 +6,7 @@ import { Message } from '../types/chat'
 import { chatService } from '../services/chatService'
 import { storageService } from '../services/storageService'
 import { parseAudioTags } from '../utils/audioParser'
-import { setMusic, setAmbience, stopMusic, stopAmbience } from './musicSlice'
+import { setMusic, setAmbience } from './musicSlice'
 import { audioService } from '../services/audioService'
 
 export interface ChatState {
@@ -64,25 +64,16 @@ export const sendMessage = createAsyncThunk(
 
       console.log("parsing", music, ambience)
 
-
-      // Handle music - only play if there's a new music tag
-      if (music) {
+      // Handle music - only change if a new music tag is provided
+      if (music && music !== state.music.currentMusic) {
         dispatch(setMusic(music))
         audioService.playMusic(music, state.music.volume.music)
-      } else {
-        // If no music tag in this response, stop any playing music
-        dispatch(stopMusic())
-        audioService.stopMusic()
       }
 
-      // Handle ambience - only play if there's a new ambience tag
-      if (ambience) {
+      // Handle ambience - only change if a new ambience tag is provided
+      if (ambience && ambience !== state.music.currentAmbience) {
         dispatch(setAmbience(ambience))
         audioService.playAmbience(ambience, state.music.volume.ambience)
-      } else {
-        // If no ambience tag in this response, stop any playing ambience
-        dispatch(stopAmbience())
-        audioService.stopAmbience()
       }
 
       // After getting assistant message, update player data
