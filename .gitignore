@@ -1,2 +1,14 @@
-app/src/renderer/public/videos/
-app/src/renderer/public/video
+app/src/renderer/public/
+
+# Ignore media files in public folder but keep the folders
+app/src/renderer/public/**/*.mp3
+app/src/renderer/public/**/*.mp4
+app/src/renderer/public/**/*.webm
+app/src/renderer/public/**/*.mov
+app/src/renderer/public/**/*.avi
+app/src/renderer/public/**/*.wmv
+app/src/renderer/public/**/*.flv
+app/src/renderer/public/**/*.mkv
+
+# Keep the folders by adding a .gitkeep file
+!app/src/renderer/public/**/.gitkeep
