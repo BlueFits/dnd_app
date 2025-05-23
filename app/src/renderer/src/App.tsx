@@ -60,7 +60,7 @@ const RootContainer = styled(Box)({
 const MessagesContainer = styled(Box)({
   flex: 1,
   overflow: 'auto',
-  paddingTop: 16,
+  paddingTop: 100,
   paddingBottom: 16,
   display: 'flex',
   flexDirection: 'column',
