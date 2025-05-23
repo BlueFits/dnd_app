@@ -9,6 +9,11 @@ import { parseAudioTags } from '../utils/audioParser'
 import { setMusic, setAmbience } from './musicSlice'
 import { audioService } from '../services/audioService'
 
+// Helper function to remove audio tags from message content
+const removeAudioTags = (content: string): string => {
+  return content.replace(/\[(?:MUSIC|AMBIENCE):[^\]]+\]/g, '').trim()
+}
+
 export interface ChatState {
   messages: Message[]
   status: 'idle' | 'loading' | 'failed'
@@ -54,7 +59,9 @@ export const sendMessage = createAsyncThunk(
           if (line.startsWith('data: ')) {
             const data = JSON.parse(line.slice(6))
             assistantMessage += data.content
-            dispatch(chatSlice.actions.updateStreamingContent(assistantMessage))
+            // Clean the streaming content before updating the state
+            const cleanedStreamingContent = removeAudioTags(assistantMessage)
+            dispatch(chatSlice.actions.updateStreamingContent(cleanedStreamingContent))
           }
         }
       }
@@ -76,6 +83,9 @@ export const sendMessage = createAsyncThunk(
         audioService.playAmbience(ambience, state.music.volume.ambience)
       }
 
+      // Clean the message content before storing
+      const cleanedMessage = removeAudioTags(assistantMessage)
+
       // After getting assistant message, update player data
       const updatedPlayer = await chatService.updatePlayerData(
         { role: 'assistant', content: assistantMessage },
@@ -90,11 +100,11 @@ export const sendMessage = createAsyncThunk(
       await storageService.appendToJsonFile(userMessage)
       await storageService.appendToJsonFile({
         role: 'assistant',
-        content: assistantMessage
+        content: cleanedMessage
       })
 
       return {
-        assistantMessage: { role: 'assistant' as const, content: assistantMessage }
+        assistantMessage: { role: 'assistant' as const, content: cleanedMessage }
       }
     } catch (error) {
       dispatch(

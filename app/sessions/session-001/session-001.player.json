@@ -1,8 +1,8 @@
 {
   "name": "Ilumi",
-  "level": 3,
+  "level": 1,
   "experience": 0,
-  "reputation": "hero",
+  "reputation": "villain",
   "traits": [
     "creative",
     "strategic",
@@ -13,16 +13,5 @@
     "tough",
     "magical"
   ],
-  "inventory": [
-    "greatsword",
-    "enchanted bow",
-    "staff of arcane",
-    "potion of healing",
-    "giant's club",
-    "gold pouch",
-    "leviathan's scale",
-    "battleaxe",
-    "healing potion",
-    "Vaelara's Grimoire"
-  ]
+  "inventory": []
 }

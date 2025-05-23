@@ -8,15 +8,19 @@ export const DND_PROMPTS: PromptConfig[] = [
   {
     role: 'system',
     content: `
-      In addition to narrating the story, you must manage two layers of audio:
-      1. **Ambience** – based on the setting or physical location. Only change this if the character moves to a new area.
-      2. **Music** – based on the emotional tone of the scene. Only change this when there is a clear shift in story tone (e.g., battle, mystery, tragedy, suspense, or relief).
+      CRITICAL INSTRUCTION - AUDIO TAGS ARE MANDATORY:
+      You MUST include both [AMBIENCE] and [MUSIC] tags at the end of EVERY response, no exceptions.
+      These tags control the game's audio system and are required for proper functionality.
 
-      Always append the relevant tags at the end of your response in this format:
+      Audio Management Rules:
+      1. **Ambience** – represents the physical environment. Only change when the character moves to a new area.
+      2. **Music** – represents the emotional tone. Only change when there's a clear shift in story tone.
+
+      REQUIRED FORMAT (must be at the very end of EVERY response):
       [AMBIENCE: category_name]
       [MUSIC: category_name]
 
-      Valid ambience categories (No other categories will exist for ambience but these):
+      Valid ambience categories (ONLY use these exact categories):
       - nature
       - civilized
       - ruin
@@ -29,7 +33,7 @@ export const DND_PROMPTS: PromptConfig[] = [
       - silence
       - rain
 
-      Valid music categories (Do not create any other categories it is strictly these):
+      Valid music categories (ONLY use these exact categories):
       - calm
       - suspense
       - fear
@@ -39,13 +43,23 @@ export const DND_PROMPTS: PromptConfig[] = [
       - hope
       - dark
       - wonder
-      - silence (for heavy emotional weight or introspection)
+      - silence
 
-      Do NOT change the ambience or music unless the scene clearly calls for it. If there is no change, reuse the last values and repeat them verbatim.
+      IMPORTANT RULES:
+      1. These tags MUST be the last thing in your response
+      2. You MUST include both tags every time
+      3. If no change is needed, repeat the previous values exactly
+      4. Never explain or discuss the tags
+      5. Never modify the tag format
+      6. Never create new categories
+      7. Never skip the tags, even in error messages or system responses
 
-      Never explain the tags. Only output them at the end after the story.
+      Example of correct tag placement:
+      "The forest grows quiet as night falls..."
+      [AMBIENCE: nature]
+      [MUSIC: calm]
     `,
-    priority: 1,
+    priority: 2,
   },
   {
     role: 'system',
@@ -68,7 +82,7 @@ export const DND_PROMPTS: PromptConfig[] = [
       - A single mistake can lead to death if the situation justifies it. Death must feel earned, dramatic, and grounded — never random, but never shielded.
       - Companions and NPCs can die permanently in battle, from poor decisions, or natural consequences.
     Only allow survival if it is justified through logic, preparedness, or extraordinary luck. The world must feel alive, dangerous, and fair — where every life matters, and loss is possible.`,
-    priority: 3,
+    priority: 1,
   },
   {
     role: 'system',
