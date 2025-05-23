@@ -69,7 +69,14 @@ export const SettingsModal = ({ open, onClose }: SettingsModalProps): React.JSX.
   const [navigationStack, setNavigationStack] = useState<SettingsScreen[]>(['main'])
 
   const handleNavigate = (screen: SettingsScreen): void => {
-    setNavigationStack((prev) => [...prev, screen])
+    // If navigating to a screen that's already in the stack, pop back to it
+    const existingIndex = navigationStack.indexOf(screen)
+    if (existingIndex !== -1) {
+      setNavigationStack((prev) => prev.slice(0, existingIndex + 1))
+    } else {
+      // Otherwise add the new screen to the stack
+      setNavigationStack((prev) => [...prev, screen])
+    }
   }
 
   const handleBack = (): void => {
