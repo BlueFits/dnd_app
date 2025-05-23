@@ -31,7 +31,7 @@ export class PromptManagerService {
   applyPrompts(
     messages: ChatMessage[],
     player?: PlayerData,
-    modifications?: ChatMessage[]
+    modifications?: ChatMessage[],
   ): ChatMessage[] {
     // Sort prompts by priority (highest first)
     const sortedPrompts = [...this.activePrompts].sort(

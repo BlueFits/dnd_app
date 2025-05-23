@@ -24,7 +24,6 @@ const initialState: ModificationsState = {
 export const saveModificationsAsync = createAsyncThunk(
   'modifications/save',
   async ({ sessionId, modifications }: { sessionId: string; modifications: Modification[] }) => {
-    console.log(sessionId, modifications)
     await saveModifications(sessionId, modifications)
     return modifications
   }
