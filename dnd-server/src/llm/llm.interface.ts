@@ -16,6 +16,7 @@ export interface ChatRequest {
   messages: ChatMessage[];
   player: PlayerData;
   modifications?: { role: 'system'; content: string }[];
+  requiresCensorship?: boolean;
 }
 
 export interface CharacterUpdateRequest {
@@ -42,4 +43,5 @@ export interface GameLogicService {
     player: PlayerData,
   ): Promise<PlayerData>;
   generateTags(narration: string): Promise<string>;
+  checkContentSafety(message: string): Promise<boolean>;
 }

@@ -6,7 +6,8 @@ export const chatService = {
   async sendMessage(
     messages: Message[],
     player: PlayerState,
-    modifications: Modification[]
+    modifications: Modification[],
+    requiresCensorship: boolean,
   ): Promise<ReadableStreamDefaultReader<Uint8Array>> {
     const response = await fetch('http://localhost:3000/llm/stream', {
       method: 'POST',
@@ -16,7 +17,8 @@ export const chatService = {
       body: JSON.stringify({
         messages,
         player,
-        modifications
+        modifications,
+        requiresCensorship
       })
     })
 
@@ -50,6 +52,22 @@ export const chatService = {
 
     if (!response.ok) {
       throw new Error(`Failed to update player data: ${response.status}`)
+    }
+
+    return response.json()
+  },
+
+  async checkContentSafety(message: string): Promise<boolean> {
+    const response = await fetch('http://localhost:3000/llm/content-safety', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to check content safety: ${response.status}`)
     }
 
     return response.json()

@@ -13,22 +13,39 @@ interface TagRequest {
   message: ChatMessage;
 }
 
+interface ContentSafetyRequest {
+  message: string;
+}
+
 @Controller('llm')
 export class LLMController {
   constructor(
     @Inject('LLM_SERVICE')
     private readonly llmService: LLMService,
+    @Inject('VENICE_SERVICE')
+    private readonly veniceService: LLMService,
     @Inject('GAME_LOGIC_SERVICE')
     private readonly gameLogicService: GameLogicService,
   ) {}
 
   @Post('stream')
   async stream(@Body() request: ChatRequest, @Res() res: Response) {
-    const stream = await this.llmService.stream(
-      request.messages,
-      request.player,
-      request.modifications,
-    );
+    // If content requires censorship, use Venice service
+    let stream = null;
+
+    if (request.requiresCensorship) {
+      stream = await this.veniceService.stream(
+        request.messages,
+        request.player,
+        request.modifications,
+      );
+    } else {
+      stream = await this.llmService.stream(
+        request.messages,
+        request.player,
+        request.modifications,
+      );
+    }
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -42,7 +59,6 @@ export class LLMController {
         res.write(`data: ${JSON.stringify({ content })}\n\n`);
       }
     }
-
     res.end();
   }
 
@@ -70,5 +86,12 @@ export class LLMController {
         ? request.message.content
         : '',
     );
+  }
+
+  @Post('content-safety')
+  async checkContentSafety(
+    @Body() request: ContentSafetyRequest,
+  ): Promise<boolean> {
+    return await this.gameLogicService.checkContentSafety(request.message);
   }
 }

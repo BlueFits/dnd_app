@@ -34,6 +34,11 @@ export const sendMessage = createAsyncThunk(
     const state = getState() as RootState
     const userMessage = { role: 'user' as const, content: message }
 
+    // Check content safety before proceeding
+    const requiresCensorship = await chatService.checkContentSafety(message)
+
+    console.log('REQURIES CEN', requiresCensorship)
+
     // Add user message to state immediately
     dispatch(chatSlice.actions.addMessage(userMessage))
 
@@ -43,7 +48,8 @@ export const sendMessage = createAsyncThunk(
       const reader = await chatService.sendMessage(
         messages,
         state.player,
-        state.modifications.modifications
+        state.modifications.modifications,
+        requiresCensorship
       )
       const decoder = new TextDecoder()
       let assistantMessage = ''

@@ -84,17 +84,15 @@ export class GeminiService implements GameLogicService {
       systemInstruction: `
       You are a tag generator for a DnD game.
       CRITICAL INSTRUCTION - TAGS ARE MANDATORY:
-      You MUST respond with [AMBIENCE], [MUSIC] and a conditional [CENSORED] tags, no exceptions.
+      You MUST respond with [AMBIENCE] and [MUSIC] tags, no exceptions.
       These tags control the game'system and are required for proper functionality.
 
       Audio Management Rules:
       1. **Ambience** – represents the physical environment. Only change when the character moves to a new area.
       2. **Music** – represents the emotional tone. Only change when there's a clear shift in story tone.
-      3. **CENSORED** - Indicates if the content of the message is restricted, ONLY show this tag if relevant.
 
       REQUIRED FORMAT:
       [AMBIENCE: category_name][MUSIC: category_name]
-      contitional: [CENSORED]
 
       Valid ambience categories (ONLY use these exact categories):
       - nature
@@ -141,5 +139,45 @@ export class GeminiService implements GameLogicService {
     const response = result.response;
     const content = response.candidates[0].content.parts[0].text;
     return content;
+  }
+
+  async checkContentSafety(message: string): Promise<boolean> {
+    const model = this.genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-lite',
+    });
+
+    const result = await model.generateContent({
+      systemInstruction: `
+      You are a content safety checker for a DnD game.
+      Your task is to determine if the given message contains inappropriate content that requires censorship.
+
+      Content that requires censorship includes:
+      1. Explicit sexual content or references
+      2. Graphic violence or gore
+      3. Hate speech or discriminatory content
+      4. Excessive profanity
+      5. Content that promotes self-harm
+      6. Content that could be triggering for players
+
+      You must respond with ONLY "true" if the content requires censorship, or "false" if it's safe.
+      Do not include any explanation or additional text in your response.
+      `,
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: `Message to check: ${message}`,
+            },
+          ],
+        },
+      ],
+    });
+
+    const response = result.response;
+    const content = response.candidates[0].content.parts[0].text
+      .trim()
+      .toLowerCase();
+    return content === 'true';
   }
 }
